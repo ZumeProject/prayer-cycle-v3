@@ -1,0 +1,223 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import TimerControls from '../TimerControls.vue'
+import { usePrayerCycleStore } from '@/stores/prayerCycle'
+import type { PrayerStatus } from '@/types'
+
+describe('TimerControls Integration', () => {
+  let wrapper: any
+  let store: any
+
+  beforeEach(() => {
+    // Create a fresh Pinia instance for each test
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    store = usePrayerCycleStore()
+  })
+
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.unmount()
+    }
+  })
+
+  describe('Store Integration', () => {
+    it('integrates correctly with Pinia store status', () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: store.status as PrayerStatus,
+          deviceType: 'mobile'
+        },
+        global: {
+          plugins: [createPinia()]
+        }
+      })
+
+      expect(wrapper.find('.timer-controls').exists()).toBe(true)
+      
+      // Initial state should be idle
+      const playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.find('.timer-controls__label').text()).toBe('Start')
+    })
+
+    it('responds to store status changes', async () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      // Initially shows Start
+      let playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.find('.timer-controls__label').text()).toBe('Start')
+
+      // Update props to active status
+      await wrapper.setProps({ status: 'active' })
+      
+      playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.find('.timer-controls__label').text()).toBe('Pause')
+      expect(playButton.classes()).toContain('timer-controls__button--active')
+    })
+
+    it('emits events that can be handled by store actions', async () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      // Test play event emission
+      const playButton = wrapper.find('.timer-controls__button--primary')
+      await playButton.trigger('click')
+      
+      expect(wrapper.emitted('play')).toHaveLength(1)
+
+      // Test next event emission
+      const nextButton = wrapper.findAll('.timer-controls__button--secondary')[0]
+      await nextButton.trigger('click')
+      
+      expect(wrapper.emitted('next')).toHaveLength(1)
+
+      // Test restart event emission
+      const restartButton = wrapper.findAll('.timer-controls__button--secondary')[1]
+      await restartButton.trigger('click')
+      
+      expect(wrapper.emitted('restart')).toHaveLength(1)
+    })
+
+    it('handles completed status correctly', async () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'completed' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      const playButton = wrapper.find('.timer-controls__button--primary')
+      const nextButton = wrapper.findAll('.timer-controls__button--secondary')[0]
+      
+      // Buttons should be disabled
+      expect(playButton.attributes('disabled')).toBeDefined()
+      expect(nextButton.attributes('disabled')).toBeDefined()
+      
+      // Label should show completed
+      expect(playButton.find('.timer-controls__label').text()).toBe('Completed')
+      
+      // Container should have disabled class
+      expect(wrapper.find('.timer-controls--disabled').exists()).toBe(true)
+    })
+  })
+
+  describe('Device Type Integration', () => {
+    it('adapts layout for mobile device type', () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(true)
+      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(false)
+      expect(wrapper.find('.timer-controls__shortcuts').exists()).toBe(false)
+    })
+
+    it('adapts layout for desktop device type', () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'desktop'
+        }
+      })
+
+      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
+      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(false)
+      expect(wrapper.find('.timer-controls__shortcuts').exists()).toBe(true)
+    })
+  })
+
+  describe('Accessibility Integration', () => {
+    it('provides proper accessibility attributes', () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'active' as PrayerStatus,
+          deviceType: 'desktop'
+        }
+      })
+
+      // Check ARIA labels
+      const buttons = wrapper.findAll('.timer-controls__button')
+      buttons.forEach((button: any) => {
+        expect(button.attributes('aria-label')).toBeTruthy()
+      })
+
+      // Check tabindex for keyboard navigation
+      const controlsContainer = wrapper.find('.timer-controls')
+      expect(controlsContainer.attributes('tabindex')).toBe('0')
+    })
+
+    it('shows keyboard shortcuts for desktop users', () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'desktop'
+        }
+      })
+
+      const shortcutsHint = wrapper.find('.timer-controls__shortcut-hint')
+      expect(shortcutsHint.exists()).toBe(true)
+      expect(shortcutsHint.text()).toContain('Space: Play/Pause')
+      expect(shortcutsHint.text()).toContain('N: Next')
+      expect(shortcutsHint.text()).toContain('R: Restart')
+    })
+  })
+
+  describe('Visual State Integration', () => {
+    it('shows correct visual states for different prayer statuses', async () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      // Test idle state
+      let playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.classes()).not.toContain('timer-controls__button--active')
+
+      // Test active state
+      await wrapper.setProps({ status: 'active' })
+      playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.classes()).toContain('timer-controls__button--active')
+
+      // Test paused state
+      await wrapper.setProps({ status: 'paused' })
+      playButton = wrapper.find('.timer-controls__button--primary')
+      expect(playButton.classes()).not.toContain('timer-controls__button--active')
+      expect(playButton.find('.timer-controls__label').text()).toBe('Resume')
+    })
+
+    it('shows correct icons for play/pause states', async () => {
+      wrapper = mount(TimerControls, {
+        props: {
+          status: 'idle' as PrayerStatus,
+          deviceType: 'mobile'
+        }
+      })
+
+      // Test play icon (idle state)
+      let playButton = wrapper.find('.timer-controls__button--primary')
+      let icon = playButton.find('svg path')
+      expect(icon.attributes('d')).toBe('M8 5v14l11-7z') // Play icon
+
+      // Test pause icon (active state)
+      await wrapper.setProps({ status: 'active' })
+      playButton = wrapper.find('.timer-controls__button--primary')
+      icon = playButton.find('svg path')
+      expect(icon.attributes('d')).toBe('M6 19h4V5H6v14zm8-14v14h4V5h-4z') // Pause icon
+    })
+  })
+})
