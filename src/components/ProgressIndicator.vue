@@ -1,10 +1,5 @@
 <template>
   <div class="progress-indicator" :class="deviceClass">
-    <!-- Step counter display -->
-    <div class="step-counter">
-      <span class="step-text">Step {{ safeCurrentStep }} of {{ totalSteps }}</span>
-    </div>
-    
     <!-- Circular progress visualization -->
     <div class="progress-circle-container">
       <svg class="progress-circle" :width="circleSize" :height="circleSize" :viewBox="`0 0 ${circleSize} ${circleSize}`">
@@ -48,23 +43,21 @@
         </g>
       </svg>
       
-      <!-- Center content showing step info only -->
-      <div class="progress-center">
-        <span class="current-step-number">{{ safeCurrentStep }}</span>
-        <span class="total-steps-text">of {{ totalSteps }}</span>
+      <!-- Countdown timer in the center of the circle -->
+      <div class="countdown-display">
+        <span class="countdown-time">{{ formattedTimeRemaining }}</span>
       </div>
     </div>
     
-    <!-- Progress status text -->
-    <div class="progress-status">
-      <span class="completed-text">{{ completedSteps }} completed</span>
-      <span class="remaining-text">{{ remainingSteps }} remaining</span>
+    <!-- Step counter display moved below circle -->
+    <div class="step-counter">
+      <span class="step-text">Step {{ safeCurrentStep }} of {{ totalSteps }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
   currentStep?: number // 1-based step number for display
@@ -88,11 +81,11 @@ const deviceClass = computed(() => `progress-indicator--${props.deviceType}`)
 // Ensure currentStep is always within valid bounds (1 to totalSteps)
 const safeCurrentStep = computed(() => Math.max(1, Math.min(props.currentStep, props.totalSteps)))
 
-const circleSize = computed(() => props.deviceType === 'desktop' ? 200 : 120)
-const radius = computed(() => props.deviceType === 'desktop' ? 85 : 50)
-const strokeWidth = computed(() => props.deviceType === 'desktop' ? 8 : 6)
-const indicatorRadius = computed(() => props.deviceType === 'desktop' ? 6 : 4)
-const indicatorStrokeWidth = computed(() => props.deviceType === 'desktop' ? 2 : 1.5)
+const circleSize = computed(() => props.deviceType === 'desktop' ? 300 : 240)
+const radius = computed(() => props.deviceType === 'desktop' ? 127.5 : 100)
+const strokeWidth = computed(() => props.deviceType === 'desktop' ? 12 : 12)
+const indicatorRadius = computed(() => props.deviceType === 'desktop' ? 9 : 8)
+const indicatorStrokeWidth = computed(() => props.deviceType === 'desktop' ? 3 : 3)
 
 // Center coordinates based on circle size
 const centerX = computed(() => circleSize.value / 2)
@@ -122,10 +115,16 @@ const strokeDashoffset = computed(() =>
 const completedSteps = computed(() => safeCurrentStep.value - 1)
 const remainingSteps = computed(() => props.totalSteps - safeCurrentStep.value)
 
-// Time formatting
+// Time formatting - M:SS format, display only updates at 5-second intervals
 const formattedTimeRemaining = computed(() => {
-  const minutes = Math.floor(props.timeRemaining / 60)
-  const seconds = props.timeRemaining % 60
+  const totalSeconds = Math.floor(props.timeRemaining) // Floor to avoid decimal issues
+  
+  // Round UP to the nearest 5-second increment
+  // This keeps display at 0:15 until we actually reach 10 seconds or below
+  const displaySeconds = Math.ceil(totalSeconds / 5) * 5
+  
+  const minutes = Math.floor(displaySeconds / 60)
+  const seconds = displaySeconds % 60
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 })
 
@@ -147,6 +146,11 @@ function getStepIndicatorY(stepIndex: number): number {
 }
 
 function getStepIndicatorColor(stepIndex: number): string {
+  // If prayer cycle is completed, all steps should be green
+  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+    return 'var(--pc-success)' // All steps completed - green
+  }
+  
   if (stepIndex < safeCurrentStep.value - 1) {
     return 'var(--pc-success)' // Completed steps - green
   } else if (stepIndex === safeCurrentStep.value - 1) {
@@ -157,6 +161,11 @@ function getStepIndicatorColor(stepIndex: number): string {
 }
 
 function getStepIndicatorStroke(stepIndex: number): string {
+  // If prayer cycle is completed, all steps should have green border
+  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+    return '#1e7e34' // All steps completed - darker green border
+  }
+  
   if (stepIndex < safeCurrentStep.value - 1) {
     return '#1e7e34' // Darker green border for completed steps (better contrast)
   } else if (stepIndex === safeCurrentStep.value - 1) {
@@ -167,9 +176,14 @@ function getStepIndicatorStroke(stepIndex: number): string {
 }
 
 function getStepIndicatorStrokeWidth(stepIndex: number): number {
+  // If prayer cycle is completed, all steps should have thick border
+  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+    return props.deviceType === 'desktop' ? 4.5 : 4.5
+  }
+  
   if (stepIndex < safeCurrentStep.value - 1) {
     // Thicker border for completed steps to improve visibility
-    return props.deviceType === 'desktop' ? 3 : 2.5
+    return props.deviceType === 'desktop' ? 4.5 : 4.5
   } else {
     // Normal border for current and upcoming steps
     return indicatorStrokeWidth.value
@@ -206,6 +220,26 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
   height: auto;
 }
 
+.countdown-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.countdown-time {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 .progress-circle {
   transform: rotate(-90deg);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
@@ -221,67 +255,24 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
   transition: all 0.3s ease-in-out;
 }
 
-.progress-center {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.current-step-number {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--color-primary);
-  line-height: 1;
-}
-
-.total-steps-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-top: var(--spacing-xs);
-}
-
-.progress-status {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 200px;
-  text-align: center;
-  gap: var(--spacing-md);
-}
-
-.completed-text,
-.remaining-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.completed-text {
-  color: var(--pc-success);
-}
 
 /* Mobile-specific styles */
 .progress-indicator--mobile {
-  max-width: 280px;
+  max-width: 420px;
 }
 
 .progress-indicator--mobile .step-text {
   font-size: var(--font-size-base);
 }
 
-.progress-indicator--mobile .current-step-number {
-  font-size: var(--font-size-xl);
+.progress-indicator--mobile .countdown-time {
+  font-size: var(--font-size-lg);
 }
 
-.progress-indicator--mobile .total-steps-text {
-  font-size: var(--font-size-xs);
-}
 
 /* Desktop/projector-specific styles */
 .progress-indicator--desktop {
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .progress-indicator--desktop .step-text {
@@ -289,22 +280,10 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
   font-weight: 700;
 }
 
-.progress-indicator--desktop .current-step-number {
-  font-size: var(--font-size-4xl);
+.progress-indicator--desktop .countdown-time {
+  font-size: var(--font-size-3xl);
 }
 
-.progress-indicator--desktop .total-steps-text {
-  font-size: var(--font-size-base);
-}
-
-.progress-indicator--desktop .completed-text,
-.progress-indicator--desktop .remaining-text {
-  font-size: var(--font-size-base);
-}
-
-.progress-indicator--desktop .progress-status {
-  max-width: 300px;
-}
 
 /* Responsive breakpoints */
 @media (min-width: 768px) {
@@ -312,8 +291,8 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
     font-size: var(--font-size-xl);
   }
   
-  .progress-indicator--mobile .current-step-number {
-    font-size: var(--font-size-2xl);
+  .progress-indicator--mobile .countdown-time {
+    font-size: var(--font-size-xl);
   }
 }
 
@@ -322,8 +301,8 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
     font-size: var(--font-size-3xl);
   }
   
-  .progress-indicator--desktop .current-step-number {
-    font-size: var(--font-size-5xl);
+  .progress-indicator--desktop .countdown-time {
+    font-size: var(--font-size-4xl);
   }
 }
 

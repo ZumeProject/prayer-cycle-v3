@@ -75,6 +75,9 @@ async function handleTimerComplete() {
   // Play audio notification for step transition
   if (store.settings.audioEnabled) {
     try {
+      if (!audioService.isInitialized()) {
+        await audioService.initialize()
+      }
       await audioService.playNotification()
     } catch (error) {
       console.warn('Failed to play audio notification:', error)

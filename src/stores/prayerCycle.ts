@@ -67,16 +67,9 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
   // State transition logic for step progression
   function nextStep(): void {
     if (currentStep.value < TOTAL_PRAYER_STEPS - 1) {
-      status.value = 'transitioning'
       currentStep.value++
       timeRemaining.value = STEP_DURATION_SECONDS
-      
-      // Brief transition state before returning to active
-      setTimeout(() => {
-        if (status.value === 'transitioning') {
-          status.value = 'active'
-        }
-      }, 100)
+      status.value = 'active' // Set directly to active, no transitioning delay
     } else {
       completeCycle()
     }
@@ -85,10 +78,8 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
   function updateTimer(remaining: number): void {
     timeRemaining.value = Math.max(0, remaining)
     
-    // Auto-advance when timer reaches zero
-    if (timeRemaining.value === 0 && status.value === 'active') {
-      nextStep()
-    }
+    // Note: Auto-advance is handled by TimerService calling handleTimerComplete in App.vue
+    // Removed duplicate nextStep() call that was causing steps to be skipped
   }
 
   function completeStep(): void {

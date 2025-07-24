@@ -126,7 +126,7 @@
 /* Desktop landscape layout optimized for projectors */
 .prayer-app-desktop {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 450px;
   grid-template-rows: auto 1fr auto;
   grid-template-areas:
     "header header"
@@ -426,7 +426,7 @@
   /* Switch to 2-column layout for larger tablets */
   .prayer-main-mobile {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 450px;
     grid-template-areas:
       "step progress"
       "timer timer"

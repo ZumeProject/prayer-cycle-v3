@@ -2,11 +2,13 @@
  * AudioService - Handles audio notifications for prayer step transitions
  * 
  * Features:
+ * - Plays clock-chime.mp3 file
  * - Web Audio API with HTML5 Audio fallback
- * - Gentle notification sound generation
  * - Volume control and system settings respect
  * - Enable/disable toggle functionality
  */
+
+import notificationSoundUrl from '@/assets/clock-chime.mp3';
 
 export class AudioService {
   private audioContext: AudioContext | null = null;
@@ -44,7 +46,7 @@ export class AudioService {
   }
 
   /**
-   * Initialize Web Audio API and generate notification sound
+   * Initialize Web Audio API and load notification sound
    */
   private async initializeWebAudio(): Promise<void> {
     // Create audio context
@@ -55,8 +57,8 @@ export class AudioService {
       await this.audioContext.resume();
     }
 
-    // Generate a gentle notification sound buffer
-    this.audioBuffer = this.generateNotificationSound();
+    // Load the MP3 notification sound
+    await this.loadNotificationSound();
   }
 
   /**
@@ -64,10 +66,8 @@ export class AudioService {
    */
   private async initializeHtmlAudio(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Create a gentle notification sound as data URL
-      const audioDataUrl = this.generateAudioDataUrl();
-      
-      this.htmlAudioElement = new Audio(audioDataUrl);
+      // Create HTML5 Audio element with MP3 file
+      this.htmlAudioElement = new Audio(notificationSoundUrl);
       this.htmlAudioElement.preload = 'auto';
       
       this.htmlAudioElement.addEventListener('canplaythrough', () => {
@@ -84,93 +84,25 @@ export class AudioService {
   }
 
   /**
-   * Generate a gentle notification sound using Web Audio API
+   * Load notification sound from MP3 file for Web Audio API
    */
-  private generateNotificationSound(): AudioBuffer {
+  private async loadNotificationSound(): Promise<void> {
     if (!this.audioContext) {
       throw new Error('Audio context not initialized');
     }
 
-    const sampleRate = this.audioContext.sampleRate;
-    const duration = 0.5; // 500ms
-    const length = sampleRate * duration;
-    const buffer = this.audioContext.createBuffer(1, length, sampleRate);
-    const data = buffer.getChannelData(0);
-
-    // Generate a gentle bell-like sound using multiple sine waves
-    for (let i = 0; i < length; i++) {
-      const time = i / sampleRate;
+    try {
+      // Fetch the MP3 file
+      const response = await fetch(notificationSoundUrl);
+      const arrayBuffer = await response.arrayBuffer();
       
-      // Fundamental frequency (gentle tone)
-      const fundamental = Math.sin(2 * Math.PI * 440 * time);
-      
-      // Add harmonics for richness
-      const harmonic1 = Math.sin(2 * Math.PI * 880 * time) * 0.3;
-      const harmonic2 = Math.sin(2 * Math.PI * 1320 * time) * 0.1;
-      
-      // Apply envelope for gentle attack and decay
-      const envelope = Math.exp(-time * 3) * (1 - Math.exp(-time * 20));
-      
-      // Combine and apply envelope
-      data[i] = (fundamental + harmonic1 + harmonic2) * envelope * 0.3;
+      // Decode audio data
+      this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      throw new Error(`Failed to load notification sound: ${error}`);
     }
-
-    return buffer;
   }
 
-  /**
-   * Generate audio data URL for HTML5 Audio fallback
-   */
-  private generateAudioDataUrl(): string {
-    // Create a simple WAV file with a gentle tone
-    const sampleRate = 44100;
-    const duration = 0.5;
-    const length = sampleRate * duration;
-    
-    // WAV header
-    const buffer = new ArrayBuffer(44 + length * 2);
-    const view = new DataView(buffer);
-    
-    // WAV header setup
-    const writeString = (offset: number, string: string) => {
-      for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-      }
-    };
-    
-    writeString(0, 'RIFF');
-    view.setUint32(4, 36 + length * 2, true);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, 1, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * 2, true);
-    view.setUint16(32, 2, true);
-    view.setUint16(34, 16, true);
-    writeString(36, 'data');
-    view.setUint32(40, length * 2, true);
-    
-    // Generate audio data
-    let offset = 44;
-    for (let i = 0; i < length; i++) {
-      const time = i / sampleRate;
-      const sample = Math.sin(2 * Math.PI * 440 * time) * Math.exp(-time * 3) * 0.3;
-      const intSample = Math.max(-32768, Math.min(32767, sample * 32767));
-      view.setInt16(offset, intSample, true);
-      offset += 2;
-    }
-    
-    // Convert to base64 data URL
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.length; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    
-    return 'data:audio/wav;base64,' + btoa(binary);
-  }
 
   /**
    * Play notification sound
