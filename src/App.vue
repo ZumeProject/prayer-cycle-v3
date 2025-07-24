@@ -279,10 +279,17 @@ function handleVisibilityChange() {
   <div v-if="deviceType === 'mobile'" class="prayer-app-mobile">
     <!-- Mobile Header -->
     <header class="prayer-header-mobile">
-      <h1 class="text-xl font-bold text-primary mb-sm">Prayer Cycle</h1>
-      <p class="text-sm text-secondary">
-        Step {{ store.stepProgress.current }} of {{ store.stepProgress.total }}
-      </p>
+      <div class="header-content">
+        <h1 class="text-xl font-bold text-primary">Prayer Cycle</h1>
+        <TimerControls
+          :status="store.status"
+          :device-type="deviceType"
+          @play="handlePlay"
+          @pause="handlePause"
+          @next="handleNext"
+          @restart="handleRestart"
+        />
+      </div>
     </header>
 
     <!-- Mobile Main Content -->
@@ -309,8 +316,15 @@ function handleVisibilityChange() {
       </section>
 
 
-      <!-- Controls Section -->
-      <section class="prayer-controls-section-mobile">
+    </main>
+  </div>
+
+  <!-- Desktop Layout -->
+  <div v-else class="prayer-app-desktop">
+    <!-- Desktop Header -->
+    <header class="prayer-header-desktop">
+      <div class="header-content">
+        <h1 class="text-projector-title">Prayer Cycle</h1>
         <TimerControls
           :status="store.status"
           :device-type="deviceType"
@@ -319,18 +333,7 @@ function handleVisibilityChange() {
           @next="handleNext"
           @restart="handleRestart"
         />
-      </section>
-    </main>
-  </div>
-
-  <!-- Desktop Layout -->
-  <div v-else class="prayer-app-desktop">
-    <!-- Desktop Header -->
-    <header class="prayer-header-desktop">
-      <h1 class="text-projector-title mb-md">Prayer Cycle</h1>
-      <p class="text-projector-body">
-        Step {{ store.stepProgress.current }} of {{ store.stepProgress.total }}
-      </p>
+      </div>
     </header>
 
     <!-- Desktop Main Content -->
@@ -359,22 +362,20 @@ function handleVisibilityChange() {
 
     </aside>
 
-    <!-- Desktop Controls -->
-    <footer class="prayer-controls-desktop">
-      <TimerControls
-        :status="store.status"
-        :device-type="deviceType"
-        @play="handlePlay"
-        @pause="handlePause"
-        @next="handleNext"
-        @restart="handleRestart"
-      />
-    </footer>
   </div>
 </template>
 
 <style scoped>
 /* Component-specific styles that override the global layout system */
+
+/* Header styles */
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-sm);
+}
 
 /* Ensure smooth transitions between layouts */
 .prayer-app-mobile,

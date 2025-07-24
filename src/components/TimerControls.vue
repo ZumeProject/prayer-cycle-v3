@@ -77,15 +77,6 @@
       <span class="timer-controls__label">Restart</span>
     </button>
 
-    <!-- Keyboard shortcuts hint for desktop -->
-    <div 
-      v-if="deviceType === 'desktop'" 
-      class="timer-controls__shortcuts"
-    >
-      <span class="timer-controls__shortcut-hint">
-        Space: Play/Pause • N: Next • R: Restart
-      </span>
-    </div>
   </div>
 </template>
 
@@ -216,7 +207,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--color-background);
+  background: transparent;
   border-radius: 0.75rem;
   transition: all 0.2s ease;
 }
@@ -232,39 +223,41 @@ onUnmounted(() => {
 
 .timer-controls__button {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-md);
-  border: 2px solid transparent;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
   border-radius: 0.5rem;
-  background: var(--color-background-soft);
-  color: var(--color-text);
+  background: var(--color-primary);
+  color: var(--color-text-light);
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
   
-  /* Touch-friendly minimum size */
-  min-width: 44px;
-  min-height: 44px;
+  /* Single line height */
+  height: 1.5rem;
+  min-height: 1.5rem;
 }
 
 .timer-controls__button:hover:not(:disabled) {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .timer-controls__button:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-primary-dark);
 }
 
 .timer-controls__button:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(44, 172, 226, 0.2);
+  box-shadow: 0 0 0 3px rgba(44, 172, 226, 0.3), var(--shadow-md);
 }
 
 .timer-controls__button:disabled {
@@ -276,37 +269,47 @@ onUnmounted(() => {
 .timer-controls__button--primary {
   background: var(--color-primary);
   color: var(--color-text-light);
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
 }
 
 .timer-controls__button--primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .timer-controls__button--primary.timer-controls__button--active {
   background: var(--pc-warning);
   color: var(--color-text);
+  border-color: #e6a800;
+  box-shadow: var(--shadow-md);
 }
 
 .timer-controls__button--primary.timer-controls__button--active:hover:not(:disabled) {
   background: #e6a800;
+  border-color: #cc9900;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .timer-controls__button--secondary {
-  background: var(--color-background-soft);
-  color: var(--color-text);
-  border-color: var(--color-text-secondary);
+  background: var(--color-text-secondary);
+  color: var(--color-text-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .timer-controls__button--secondary:hover:not(:disabled) {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: var(--color-text);
+  color: var(--color-text-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .timer-controls__icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }
 
@@ -335,15 +338,15 @@ onUnmounted(() => {
 }
 
 .timer-controls--mobile .timer-controls__button {
-  min-width: 80px;
-  min-height: 80px;
-  padding: var(--spacing-md) var(--spacing-sm);
-  border-radius: 0.75rem;
+  height: 1.75rem;
+  min-height: 1.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 0.25rem;
 }
 
 .timer-controls--mobile .timer-controls__icon {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
 }
 
 .timer-controls--mobile .timer-controls__label {
@@ -352,23 +355,23 @@ onUnmounted(() => {
 
 /* Desktop/projector-specific styles */
 .timer-controls--desktop {
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
+  flex-direction: row;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
 }
 
 .timer-controls--desktop .timer-controls__button {
-  min-width: 120px;
-  min-height: 80px;
-  padding: var(--spacing-lg) var(--spacing-md);
-  border-radius: 0.75rem;
+  height: 2rem;
+  min-height: 2rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 0.25rem;
   flex-direction: row;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .timer-controls--desktop .timer-controls__icon {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
 }
 
 .timer-controls--desktop .timer-controls__label {
@@ -392,14 +395,14 @@ onUnmounted(() => {
   }
   
   .timer-controls--mobile .timer-controls__button {
-    min-width: 70px;
-    min-height: 70px;
-    padding: var(--spacing-sm);
+    height: 1.5rem;
+    min-height: 1.5rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
   
   .timer-controls--mobile .timer-controls__icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
   
   .timer-controls--mobile .timer-controls__label {
@@ -409,13 +412,13 @@ onUnmounted(() => {
 
 @media (min-width: 481px) and (max-width: 768px) {
   .timer-controls--mobile .timer-controls__button {
-    min-width: 90px;
-    min-height: 90px;
+    height: 2rem;
+    min-height: 2rem;
   }
   
   .timer-controls--mobile .timer-controls__icon {
-    width: 26px;
-    height: 26px;
+    width: 18px;
+    height: 18px;
   }
   
   .timer-controls--mobile .timer-controls__label {
@@ -426,13 +429,13 @@ onUnmounted(() => {
 /* Desktop responsive breakpoints */
 @media (min-width: 1024px) {
   .timer-controls--desktop .timer-controls__button {
-    min-width: 140px;
-    min-height: 90px;
+    height: 2.25rem;
+    min-height: 2.25rem;
   }
   
   .timer-controls--desktop .timer-controls__icon {
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
   }
   
   .timer-controls--desktop .timer-controls__label {
@@ -442,14 +445,14 @@ onUnmounted(() => {
 
 @media (min-width: 1440px) {
   .timer-controls--desktop .timer-controls__button {
-    min-width: 160px;
-    min-height: 100px;
-    padding: var(--spacing-xl) var(--spacing-lg);
+    height: 2.5rem;
+    min-height: 2.5rem;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
   
   .timer-controls--desktop .timer-controls__icon {
-    width: 36px;
-    height: 36px;
+    width: 20px;
+    height: 20px;
   }
   
   .timer-controls--desktop .timer-controls__label {
