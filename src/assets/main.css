@@ -524,7 +524,7 @@
 @media (min-width: 1920px) {
   .prayer-app-desktop {
     grid-template-columns: 1fr 500px;
-    gap: var(--spacing-3xl);
+    
     padding: var(--spacing-3xl);
   }
   

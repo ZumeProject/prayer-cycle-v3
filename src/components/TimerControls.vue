@@ -160,7 +160,7 @@ function handleRestart(): void {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  padding: 0;
   background: transparent;
   border-radius: 0.75rem;
   transition: all 0.2s ease;
@@ -277,7 +277,6 @@ function handleRestart(): void {
 .timer-controls--mobile {
   flex-wrap: wrap;
   max-width: 100%;
-  padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .timer-controls--mobile .timer-controls__button {

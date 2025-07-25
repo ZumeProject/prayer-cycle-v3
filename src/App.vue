@@ -14,6 +14,8 @@ import ProgressIndicator from './components/ProgressIndicator.vue'
 import TimerControls from './components/TimerControls.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import LanguageSelector from './components/LanguageSelector.vue'
+import LanguageDropdown from './components/LanguageDropdown.vue'
+import TopMenuBar from './components/TopMenuBar.vue'
 
 const { t } = useI18n()
 
@@ -54,6 +56,11 @@ function detectDeviceType(): 'mobile' | 'desktop' {
 
 // Device type detection and responsive behavior - initialize with detected type
 const deviceType = ref<'mobile' | 'desktop'>(detectDeviceType())
+
+// Menu state management
+const showLanguageSelector = ref(false)
+const showSettings = ref(false)
+const settingsPanel = ref(null)
 
 // Update device type on window resize with debouncing to prevent excessive updates
 let resizeTimeout: ReturnType<typeof setTimeout> | null = null
@@ -183,6 +190,31 @@ function handleSettingsUpdate(newSettings: Partial<UserSettings>) {
   storageService.saveSettings(store.settings)
 }
 
+// Menu handlers
+function handleToggleLanguage() {
+  showLanguageSelector.value = !showLanguageSelector.value
+  showSettings.value = false
+}
+
+function handleToggleSettings() {
+  showLanguageSelector.value = false
+  // Trigger the settings panel's toggle method
+  if (settingsPanel.value && typeof settingsPanel.value.togglePanel === 'function') {
+    settingsPanel.value.togglePanel()
+  }
+}
+
+function handleLanguageSelected() {
+  showLanguageSelector.value = false
+}
+
+function handleClickOutside(event: Event) {
+  const target = event.target as Element
+  if (!target.closest('.dropdown-panel') && !target.closest('.menu-icon-btn') && !target.closest('.settings-panel')) {
+    showLanguageSelector.value = false
+  }
+}
+
 // Computed properties for template
 const currentStep = computed(() => store.currentPrayerStep)
 const isTransitioning = computed(() => store.status === 'transitioning')
@@ -272,6 +304,9 @@ onMounted(async () => {
   
   // Handle page visibility changes for timer management
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  
+  // Handle clicks outside dropdowns
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
@@ -284,6 +319,7 @@ onUnmounted(() => {
   // Remove event listeners
   window.removeEventListener('resize', handleResize)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  document.removeEventListener('click', handleClickOutside)
   
   // Dispose audio service
   audioService.dispose()
@@ -323,6 +359,25 @@ function handleVisibilityChange() {
 </script>
 
 <template>
+  <!-- Top Menu Bar - Always at top -->
+  <TopMenuBar 
+    @toggle-language="handleToggleLanguage"
+    @toggle-settings="handleToggleSettings"
+  />
+  
+  <!-- Language Selector Dropdown -->
+  <div v-if="showLanguageSelector" class="dropdown-panel">
+    <LanguageDropdown @language-selected="handleLanguageSelected" />
+  </div>
+  
+  <!-- Settings Panel -->
+  <SettingsPanel
+    ref="settingsPanel"
+    :settings="store.settings"
+    :device-type="deviceType"
+    @update-settings="handleSettingsUpdate"
+  />
+
   <!-- Mobile Layout -->
   <div v-if="deviceType === 'mobile'" class="prayer-app-mobile">
     <!-- Offline Status Banner -->
@@ -337,28 +392,17 @@ function handleVisibilityChange() {
       <button @click="installPWA" class="install-btn">Install</button>
     </div>
     
-    <!-- Mobile Header -->
-    <header class="prayer-header-mobile">
-      <div class="header-content">
-        <div class="header-title-section">
-          <h1 class="text-xl font-bold text-primary">{{ t('app.title') }}</h1>
-          <LanguageSelector />
-          <!-- <SettingsPanel
-            :settings="store.settings"
-            :device-type="deviceType"
-            @update-settings="handleSettingsUpdate"
-          /> -->
-        </div>
-        <TimerControls
-          :status="store.status"
-          :device-type="deviceType"
-          @play="handlePlay"
-          @pause="handlePause"
-          @next="handleNext"
-          @restart="handleRestart"
-        />
-      </div>
-    </header>
+    <!-- Mobile Timer Controls -->
+    <div class="mobile-controls">
+      <TimerControls
+        :status="store.status"
+        :device-type="deviceType"
+        @play="handlePlay"
+        @pause="handlePause"
+        @next="handleNext"
+        @restart="handleRestart"
+      />
+    </div>
 
     <!-- Mobile Main Content -->
     <main class="prayer-main-mobile">
@@ -389,7 +433,7 @@ function handleVisibilityChange() {
   </div>
 
   <!-- Desktop Layout -->
-  <div v-else class="prayer-app-desktop">
+  <div v-else class="prayer-app-desktop-wrapper">
     <!-- Offline Status Banner -->
     <div v-if="!isOnline" class="offline-banner desktop">
       <span class="offline-icon">💻</span>
@@ -402,29 +446,20 @@ function handleVisibilityChange() {
       <button @click="installPWA" class="install-btn">Install</button>
     </div>
     
-    <!-- Desktop Header -->
-    <header class="prayer-header-desktop">
-      <div class="header-content">
-        <div class="header-title-section">
-          <h1 class="text-projector-title">{{ t('app.title') }}</h1>
-          <LanguageSelector />
-          <!-- <SettingsPanel
-            :settings="store.settings"
-            :device-type="deviceType"
-            @update-settings="handleSettingsUpdate"
-          /> -->
-        </div>
-        <TimerControls
-          :status="store.status"
-          :device-type="deviceType"
-          @play="handlePlay"
-          @pause="handlePause"
-          @next="handleNext"
-          @restart="handleRestart"
-        />
-      </div>
-    </header>
+    <!-- Desktop Timer Controls (outside grid) -->
+    <div class="desktop-controls">
+      <TimerControls
+        :status="store.status"
+        :device-type="deviceType"
+        @play="handlePlay"
+        @pause="handlePause"
+        @next="handleNext"
+        @restart="handleRestart"
+      />
+    </div>
 
+    <!-- Desktop Grid Layout -->
+    <div class="prayer-app-desktop">
     <!-- Desktop Main Content -->
     <main class="prayer-main-desktop">
       <StepDisplay 
@@ -452,6 +487,7 @@ function handleVisibilityChange() {
 
     </aside>
 
+    </div>
   </div>
 </template>
 
@@ -528,9 +564,8 @@ function handleVisibilityChange() {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 999;
 }
 
 .offline-banner.desktop {
@@ -556,9 +591,8 @@ function handleVisibilityChange() {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  position: sticky;
-  top: 0;
-  z-index: 999;
+  position: relative;
+  z-index: 998;
 }
 
 .install-banner.desktop {
@@ -590,13 +624,69 @@ function handleVisibilityChange() {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Dropdown Panel Styles */
+.dropdown-panel {
+  position: fixed;
+  top: 70px;
+  right: var(--spacing-lg);
+  z-index: var(--z-dropdown);
+  background: var(--color-background);
+  border: 1px solid var(--color-text-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-md);
+  min-width: 250px;
+  max-width: 90vw;
+}
+
+
+/* Layout adjustments for fixed header */
+.prayer-app-mobile,
+.prayer-app-desktop-wrapper {
+  padding-top: 70px; /* Account for fixed header height */
+}
+
+/* Desktop wrapper to contain controls outside grid */
+.prayer-app-desktop-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 70px);
+}
+
+/* Override the grid padding since it's now inside wrapper */
+.prayer-app-desktop-wrapper .prayer-app-desktop {
+  padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  flex: 1;
+}
+
+/* Mobile and Desktop Control Styles */
+.mobile-controls {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md);
+  background: var(--color-background-soft);
+  border-radius: var(--radius-lg);
+  margin: var(--spacing-md) var(--spacing-sm);
+}
+
+.desktop-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-background-soft);
+  border-radius: var(--radius-xl);
+  margin: 0 auto;
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .prayer-header-mobile,
-  .prayer-header-desktop,
-  .prayer-sidebar-desktop,
-  .prayer-controls-section-mobile,
-  .prayer-controls-desktop {
+  .mobile-controls,
+  .desktop-controls,
+  .prayer-sidebar-desktop {
+    border: 2px solid var(--color-text);
+  }
+  
+  .dropdown-panel {
     border: 2px solid var(--color-text);
   }
   
@@ -607,6 +697,33 @@ function handleVisibilityChange() {
   
   .install-banner {
     border: 2px solid white;
+  }
+}
+
+/* Responsive adjustments for desktop wrapper */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .prayer-app-desktop-wrapper .prayer-app-desktop {
+    padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1440px) {
+  .prayer-app-desktop-wrapper .prayer-app-desktop {
+    padding: 0 var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
+  }
+  
+  .desktop-controls {
+    width: calc(100% - 2 * var(--spacing-xxl));
+  }
+}
+
+@media (min-width: 1920px) {
+  .prayer-app-desktop-wrapper .prayer-app-desktop {
+    padding: 0 var(--spacing-3xl) var(--spacing-3xl) var(--spacing-3xl);
+  }
+  
+  .desktop-controls {
+    width: calc(100% - 2 * var(--spacing-3xl));
   }
 }
 </style>

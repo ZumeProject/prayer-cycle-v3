@@ -190,6 +190,12 @@ function updateDeviceTypeSetting(event: Event): void {
   const target = event.target as HTMLSelectElement
   emit('updateSettings', { deviceType: target.value as 'mobile' | 'desktop' })
 }
+
+// Expose methods for parent components
+defineExpose({
+  togglePanel,
+  closePanel
+})
 </script>
 
 <style scoped>
@@ -236,10 +242,10 @@ function updateDeviceTypeSetting(event: Event): void {
 }
 
 .settings-panel__content {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: var(--spacing-xs);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 320px;
   max-width: 90vw;
   background: var(--color-background);
@@ -439,7 +445,6 @@ function updateDeviceTypeSetting(event: Event): void {
 /* Mobile-specific styles */
 .settings-panel--mobile .settings-panel__content {
   width: 280px;
-  right: 0;
 }
 
 .settings-panel--mobile .settings-panel__toggle {
@@ -472,10 +477,7 @@ function updateDeviceTypeSetting(event: Event): void {
 @media (max-width: 480px) {
   .settings-panel__content {
     width: calc(100vw - 2rem);
-    right: 1rem;
-    left: 1rem;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: calc(100vw - 2rem);
   }
 }
 
