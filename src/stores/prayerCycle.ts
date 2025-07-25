@@ -17,6 +17,9 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
     primaryColor: '#2cace2',
     deviceType: 'mobile'
   })
+  
+  // Custom step duration (can be overridden by URL parameter)
+  const stepDuration = ref<number>(STEP_DURATION_SECONDS)
 
   // Computed getters
   const currentPrayerStep = computed(() => PRAYER_STEPS[currentStep.value])
@@ -42,7 +45,7 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
   // Store actions for timer control
   function startCycle(): void {
     currentStep.value = 0
-    timeRemaining.value = STEP_DURATION_SECONDS
+    timeRemaining.value = stepDuration.value
     status.value = 'active'
   }
 
@@ -60,7 +63,7 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
 
   function restartCycle(): void {
     currentStep.value = 0
-    timeRemaining.value = STEP_DURATION_SECONDS
+    timeRemaining.value = stepDuration.value
     status.value = 'idle'
   }
 
@@ -68,7 +71,7 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
   function nextStep(): void {
     if (currentStep.value < TOTAL_PRAYER_STEPS - 1) {
       currentStep.value++
-      timeRemaining.value = STEP_DURATION_SECONDS
+      timeRemaining.value = stepDuration.value
       status.value = 'active' // Set directly to active, no transitioning delay
     } else {
       completeCycle()
@@ -94,11 +97,19 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
   function updateSettings(newSettings: Partial<UserSettings>): void {
     settings.value = { ...settings.value, ...newSettings }
   }
+  
+  function setStepDuration(duration: number): void {
+    stepDuration.value = duration
+    // Reset timeRemaining to new duration if currently idle
+    if (status.value === 'idle') {
+      timeRemaining.value = duration
+    }
+  }
 
   // Reset to initial state
   function reset(): void {
     currentStep.value = 0
-    timeRemaining.value = STEP_DURATION_SECONDS
+    timeRemaining.value = stepDuration.value
     status.value = 'idle'
   }
 
@@ -144,6 +155,7 @@ export const usePrayerCycleStore = defineStore('prayerCycle', () => {
     completeStep,
     completeCycle,
     updateSettings,
+    setStepDuration,
     reset,
     restoreSession
   }

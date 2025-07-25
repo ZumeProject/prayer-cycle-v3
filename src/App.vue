@@ -15,6 +15,25 @@ const store = usePrayerCycleStore()
 // Services
 const timerService = new TimerService()
 
+// Get step duration from URL parameter or use default
+function getStepDuration(): number {
+  const urlParams = new URLSearchParams(window.location.search)
+  const stepParam = urlParams.get('step')
+  
+  if (stepParam) {
+    const duration = parseInt(stepParam, 10)
+    if (!isNaN(duration) && duration > 0) {
+      console.log(`Using URL parameter step duration: ${duration} seconds`)
+      return duration
+    }
+  }
+  
+  return STEP_DURATION_SECONDS
+}
+
+// Get the actual step duration to use
+const actualStepDuration = getStepDuration()
+
 // Detect device type based on screen size and user agent
 function detectDeviceType(): 'mobile' | 'desktop' {
   const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -186,6 +205,9 @@ watch(() => store.status, (newStatus, oldStatus) => {
 
 // Component lifecycle hooks
 onMounted(async () => {
+  // Set custom step duration from URL parameter
+  store.setStepDuration(actualStepDuration)
+  
   // Add resize listener for device type detection
   window.addEventListener('resize', handleResize)
   
@@ -313,8 +335,9 @@ function handleVisibilityChange() {
           :current-step="store.stepProgress.current"
           :total-steps="store.stepProgress.total"
           :time-remaining="store.timeRemaining"
-          :step-duration="STEP_DURATION_SECONDS"
+          :step-duration="actualStepDuration"
           :device-type="deviceType"
+          :is-completed="store.isCompleted"
         />
       </section>
 
@@ -358,8 +381,9 @@ function handleVisibilityChange() {
           :current-step="store.stepProgress.current"
           :total-steps="store.stepProgress.total"
           :time-remaining="store.timeRemaining"
-          :step-duration="STEP_DURATION_SECONDS"
+          :step-duration="actualStepDuration"
           :device-type="deviceType"
+          :is-completed="store.isCompleted"
         />
       </section>
 

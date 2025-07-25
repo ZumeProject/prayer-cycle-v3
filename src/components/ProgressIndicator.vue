@@ -8,23 +8,18 @@
           :cx="centerX"
           :cy="centerY"
           :r="radius"
-          fill="none"
-          stroke="var(--color-background-soft)"
-          :stroke-width="strokeWidth"
+          fill="var(--color-background-soft)"
+          stroke="var(--color-background-mute)"
+          :stroke-width="2"
         />
         
-        <!-- Progress circle -->
-        <circle
-          :cx="centerX"
-          :cy="centerY"
-          :r="radius"
-          fill="none"
-          stroke="var(--color-primary)"
-          :stroke-width="strokeWidth"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="strokeDashoffset"
-          stroke-linecap="round"
-          class="progress-stroke"
+        <!-- Progress pie slice -->
+        <path
+          :d="progressPiePath"
+          fill="rgba(44, 172, 226, 0.6)"
+          stroke="rgba(44, 172, 226, 0.8)"
+          stroke-width="1"
+          class="progress-pie"
         />
         
         <!-- Step indicators around the circle -->
@@ -65,6 +60,7 @@ interface Props {
   timeRemaining?: number // seconds remaining in current step
   deviceType?: 'mobile' | 'desktop'
   stepDuration?: number // total duration of each step in seconds
+  isCompleted?: boolean // whether the prayer cycle is completed
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -72,7 +68,8 @@ const props = withDefaults(defineProps<Props>(), {
   totalSteps: 12,
   timeRemaining: 300,
   deviceType: 'mobile',
-  stepDuration: 300
+  stepDuration: 300,
+  isCompleted: false
 })
 
 // Computed properties for responsive design
@@ -91,11 +88,15 @@ const indicatorStrokeWidth = computed(() => props.deviceType === 'desktop' ? 3 :
 const centerX = computed(() => circleSize.value / 2)
 const centerY = computed(() => circleSize.value / 2)
 
-// Circle calculations
-const circumference = computed(() => 2 * Math.PI * radius.value)
+// Note: Circumference calculation removed - using pie slice instead
 
 // Time-based progress calculation (like a clock)
 const progressPercentage = computed(() => {
+  // If prayer cycle is completed, show full progress
+  if (props.isCompleted) {
+    return 1.0 // 100% complete
+  }
+  
   // Calculate completed steps progress
   const completedSteps = safeCurrentStep.value - 1
   
@@ -107,9 +108,43 @@ const progressPercentage = computed(() => {
   return (completedSteps + currentStepProgress) / props.totalSteps
 })
 
-const strokeDashoffset = computed(() => 
-  circumference.value - (progressPercentage.value * circumference.value)
-)
+// Generate SVG path for pie slice progress
+const progressPiePath = computed(() => {
+  const progress = progressPercentage.value
+  
+  // No progress = no pie slice
+  if (progress <= 0) return ''
+  
+  const centerXVal = centerX.value
+  const centerYVal = centerY.value
+  const radiusVal = radius.value
+  
+  // For 100% completion, create a full circle using two semicircle arcs
+  if (progress >= 0.999) {
+    return `M ${centerXVal} ${centerYVal} 
+            m ${radiusVal} 0 
+            A ${radiusVal} ${radiusVal} 0 1 1 ${centerXVal - radiusVal} ${centerYVal} 
+            A ${radiusVal} ${radiusVal} 0 1 1 ${centerXVal + radiusVal} ${centerYVal} 
+            Z`
+  }
+  
+  // Convert progress to angle (0 to 2π)
+  // Start at right (3 o'clock) and go clockwise - the SVG rotation will handle positioning
+  const angle = progress * 2 * Math.PI
+  
+  // Calculate end point of the arc
+  const endX = centerXVal + radiusVal * Math.cos(angle)
+  const endY = centerYVal + radiusVal * Math.sin(angle)
+  
+  // Use large arc flag if progress > 0.5 (180 degrees)
+  const largeArcFlag = progress > 0.5 ? 1 : 0
+  
+  // Create SVG path for pie slice - starting at right, will be rotated by CSS
+  return `M ${centerXVal} ${centerYVal} 
+          L ${centerXVal + radiusVal} ${centerYVal} 
+          A ${radiusVal} ${radiusVal} 0 ${largeArcFlag} 1 ${endX} ${endY} 
+          Z`
+})
 
 // Step progress calculations
 const completedSteps = computed(() => safeCurrentStep.value - 1)
@@ -119,9 +154,22 @@ const remainingSteps = computed(() => props.totalSteps - safeCurrentStep.value)
 const formattedTimeRemaining = computed(() => {
   const totalSeconds = Math.floor(props.timeRemaining) // Floor to avoid decimal issues
   
-  // Round UP to the nearest 5-second increment
-  // This keeps display at 0:15 until we actually reach 10 seconds or below
-  const displaySeconds = Math.ceil(totalSeconds / 5) * 5
+  // Show the current 5-second bucket
+  // For 15,14,13,12,11 show 15; for 10,9,8,7,6 show 10; for 5,4,3,2,1 show 5
+  // Only show 0 when timeRemaining is actually 0 or negative
+  let displaySeconds
+  if (props.timeRemaining <= 0) {
+    displaySeconds = 0
+  } else if (totalSeconds === 0) {
+    // For 0.1 to 0.9 seconds, show 5
+    displaySeconds = 5
+  } else if (totalSeconds % 5 === 0) {
+    // Exact multiple of 5 - show that value
+    displaySeconds = totalSeconds
+  } else {
+    // Round up to next multiple of 5
+    displaySeconds = Math.ceil(totalSeconds / 5) * 5
+  }
   
   const minutes = Math.floor(displaySeconds / 60)
   const seconds = displaySeconds % 60
@@ -147,7 +195,7 @@ function getStepIndicatorY(stepIndex: number): number {
 
 function getStepIndicatorColor(stepIndex: number): string {
   // If prayer cycle is completed, all steps should be green
-  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+  if (props.isCompleted) {
     return 'var(--pc-success)' // All steps completed - green
   }
   
@@ -162,7 +210,7 @@ function getStepIndicatorColor(stepIndex: number): string {
 
 function getStepIndicatorStroke(stepIndex: number): string {
   // If prayer cycle is completed, all steps should have green border
-  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+  if (props.isCompleted) {
     return '#1e7e34' // All steps completed - darker green border
   }
   
@@ -177,7 +225,7 @@ function getStepIndicatorStroke(stepIndex: number): string {
 
 function getStepIndicatorStrokeWidth(stepIndex: number): number {
   // If prayer cycle is completed, all steps should have thick border
-  if (props.currentStep === props.totalSteps && props.timeRemaining === 0) {
+  if (props.isCompleted) {
     return props.deviceType === 'desktop' ? 4.5 : 4.5
   }
   
@@ -247,8 +295,8 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
   height: auto;
 }
 
-.progress-stroke {
-  transition: stroke-dashoffset 0.3s ease-in-out;
+.progress-pie {
+  /* No transition for immediate updates - pie should follow timer exactly */
 }
 
 .step-indicators .step-dot {
@@ -308,7 +356,7 @@ function getStepIndicatorStrokeWidth(stepIndex: number): number {
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .progress-stroke,
+  .progress-pie,
   .step-dot {
     transition: none;
   }
