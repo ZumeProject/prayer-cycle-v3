@@ -46,13 +46,16 @@
     
     <!-- Step counter display moved below circle -->
     <div class="step-counter">
-      <span class="step-text">Step {{ safeCurrentStep }} of {{ totalSteps }}</span>
+      <span class="step-text">{{ t('prayer.timer.step') }} {{ safeCurrentStep }} {{ t('prayer.timer.of') }} {{ totalSteps }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Props {
   currentStep?: number // 1-based step number for display

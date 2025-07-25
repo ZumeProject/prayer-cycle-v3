@@ -18,6 +18,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { PrayerStatus } from '@/types'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Props {
   timeRemaining: number // seconds
@@ -41,15 +44,15 @@ const formattedTime = computed(() => {
 const statusLabel = computed(() => {
   switch (props.status) {
     case 'active':
-      return 'Active'
+      return t('prayer.timer.status.active')
     case 'paused':
-      return 'Paused'
+      return t('prayer.timer.status.paused')
     case 'transitioning':
-      return 'Transitioning'
+      return t('prayer.timer.status.transitioning')
     case 'completed':
-      return 'Completed'
+      return t('prayer.timer.status.completed')
     case 'idle':
-      return 'Ready'
+      return t('prayer.timer.status.idle')
     default:
       return ''
   }

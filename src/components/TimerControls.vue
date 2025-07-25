@@ -53,7 +53,7 @@
       >
         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
       </svg>
-      <span class="timer-controls__label">Next</span>
+      <span class="timer-controls__label">{{ t('prayer.timer.next') }}</span>
     </button>
 
     <!-- Restart Button -->
@@ -72,7 +72,7 @@
       >
         <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
       </svg>
-      <span class="timer-controls__label">Restart</span>
+      <span class="timer-controls__label">{{ t('prayer.timer.reset') }}</span>
     </button>
 
   </div>
@@ -81,6 +81,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { PrayerStatus } from '@/types'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Props {
   status: PrayerStatus
@@ -109,26 +112,26 @@ const isTransitioning = computed(() => props.status === 'transitioning')
 
 // Computed properties for button labels and accessibility
 const playPauseLabel = computed(() => {
-  if (isIdle.value) return 'Start'
-  if (isActive.value) return 'Pause'
-  if (isPaused.value) return 'Resume'
-  if (isCompleted.value) return 'Completed'
-  return 'Play'
+  if (isIdle.value) return t('prayer.timer.start')
+  if (isActive.value) return t('prayer.timer.pause')
+  if (isPaused.value) return t('prayer.timer.resume')
+  if (isCompleted.value) return t('prayer.timer.completed')
+  return t('prayer.timer.start')
 })
 
 const playPauseAriaLabel = computed(() => {
-  if (isIdle.value) return 'Start prayer cycle'
-  if (isActive.value) return 'Pause current step'
-  if (isPaused.value) return 'Resume current step'
-  if (isCompleted.value) return 'Prayer cycle completed'
-  return 'Play or pause timer'
+  if (isIdle.value) return t('prayer.timer.aria.start_cycle')
+  if (isActive.value) return t('prayer.timer.aria.pause_step')
+  if (isPaused.value) return t('prayer.timer.aria.resume_step')
+  if (isCompleted.value) return t('prayer.timer.aria.cycle_completed')
+  return t('prayer.timer.aria.start_cycle')
 })
 
 const nextAriaLabel = computed(() => 
-  isCompleted.value ? 'Prayer cycle completed' : 'Skip to next prayer step'
+  isCompleted.value ? t('prayer.timer.aria.cycle_completed') : t('prayer.timer.aria.next_step')
 )
 
-const restartAriaLabel = computed(() => 'Restart prayer cycle from beginning')
+const restartAriaLabel = computed(() => t('prayer.timer.aria.restart_cycle'))
 
 // Event handlers
 function handlePlayPause(): void {

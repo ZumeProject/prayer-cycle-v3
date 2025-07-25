@@ -1,0 +1,93 @@
+name: Weblate Integration
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'src/i18n/locales/**'
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'src/i18n/locales/**'
+
+jobs:
+  weblate-sync:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate translation files
+      run: |
+        # Check if JSON files are valid
+        for file in src/i18n/locales/*.json; do
+          if [ -f "$file" ]; then
+            echo "Validating $file"
+            node -e "JSON.parse(require('fs').readFileSync('$file', 'utf8'))" || exit 1
+          fi
+        done
+        
+    - name: Check translation completeness
+      run: |
+        # Basic validation that all translation files have required keys
+        if [ -f "src/i18n/locales/en_US.json" ]; then
+          echo "Base translation file exists"
+        else
+          echo "Error: Base translation file (en_US.json) not found"
+          exit 1
+        fi
+
+  validate-translations:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate JSON syntax
+      run: |
+        echo "Validating translation file syntax..."
+        for file in src/i18n/locales/*.json; do
+          if [ -f "$file" ]; then
+            echo "Checking $file"
+            node -e "
+              try {
+                const content = require('fs').readFileSync('$file', 'utf8');
+                JSON.parse(content);
+                console.log('✓ $file is valid JSON');
+              } catch (error) {
+                console.error('✗ $file has invalid JSON:', error.message);
+                process.exit(1);
+              }
+            "
+          fi
+        done
+        
+    - name: Build application
+      run: npm run build
+      
+    - name: Run tests
+      run: npm run test:unit

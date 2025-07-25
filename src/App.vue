@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePrayerCycleStore } from './stores/prayerCycle'
 import { usePWA } from './composables/usePWA'
+import { useI18n } from './composables/useI18n'
 import { TimerService } from './utils/TimerService'
 import { audioService } from './utils/AudioService'
 import { storageService } from './utils/StorageService'
@@ -12,6 +13,9 @@ import StepDisplay from './components/StepDisplay.vue'
 import ProgressIndicator from './components/ProgressIndicator.vue'
 import TimerControls from './components/TimerControls.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
+import LanguageSelector from './components/LanguageSelector.vue'
+
+const { t } = useI18n()
 
 // Pinia store connection
 const store = usePrayerCycleStore()
@@ -337,7 +341,8 @@ function handleVisibilityChange() {
     <header class="prayer-header-mobile">
       <div class="header-content">
         <div class="header-title-section">
-          <h1 class="text-xl font-bold text-primary">Prayer Cycle</h1>
+          <h1 class="text-xl font-bold text-primary">{{ t('app.title') }}</h1>
+          <LanguageSelector />
           <!-- <SettingsPanel
             :settings="store.settings"
             :device-type="deviceType"
@@ -401,7 +406,8 @@ function handleVisibilityChange() {
     <header class="prayer-header-desktop">
       <div class="header-content">
         <div class="header-title-section">
-          <h1 class="text-projector-title">Prayer Cycle</h1>
+          <h1 class="text-projector-title">{{ t('app.title') }}</h1>
+          <LanguageSelector />
           <!-- <SettingsPanel
             :settings="store.settings"
             :device-type="deviceType"
@@ -433,7 +439,7 @@ function handleVisibilityChange() {
     <aside class="prayer-sidebar-desktop">
       <!-- Progress Section -->
       <section class="flex flex-col items-center">
-        <h2 class="text-xl font-semibold text-primary mb-md">Progress</h2>
+        <h2 class="text-xl font-semibold text-primary mb-md">{{ t('prayer.progress.total_progress') }}</h2>
         <ProgressIndicator 
           :current-step="store.stepProgress.current"
           :total-steps="store.stepProgress.total"

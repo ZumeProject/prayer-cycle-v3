@@ -8,10 +8,10 @@
   >
     <div class="step-display__content">
       <h1 class="step-display__name">
-        {{ step.name }}
+        {{ t(step.name) }}
       </h1>
       <p class="step-display__description">
-        {{ step.description }}
+        {{ t(step.description) }}
       </p>
     </div>
   </div>
@@ -20,6 +20,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { PrayerStep } from '@/types'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Props {
   step: PrayerStep
