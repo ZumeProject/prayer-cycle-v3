@@ -13,6 +13,7 @@ export interface UserSettings {
   audioEnabled: boolean;
   primaryColor: string; // #2cace2
   deviceType: 'mobile' | 'desktop';
+  wakeLockEnabled: boolean;
 }
 
 export interface PrayerCycleState {

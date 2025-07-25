@@ -99,7 +99,8 @@ export class StorageService {
     const defaultSettings: UserSettings = {
       audioEnabled: true,
       primaryColor: '#2cace2',
-      deviceType: 'mobile'
+      deviceType: 'mobile',
+      wakeLockEnabled: true
     }
 
     try {
@@ -117,7 +118,10 @@ export class StorageService {
             : defaultSettings.primaryColor,
           deviceType: ['mobile', 'desktop'].includes(parsedSettings.deviceType)
             ? parsedSettings.deviceType
-            : defaultSettings.deviceType
+            : defaultSettings.deviceType,
+          wakeLockEnabled: typeof parsedSettings.wakeLockEnabled === 'boolean'
+            ? parsedSettings.wakeLockEnabled
+            : defaultSettings.wakeLockEnabled
         }
       }
     } catch (error) {
@@ -245,7 +249,8 @@ export class StorageService {
       typeof data === 'object' &&
       typeof data.audioEnabled === 'boolean' &&
       typeof data.primaryColor === 'string' &&
-      ['mobile', 'desktop'].includes(data.deviceType)
+      ['mobile', 'desktop'].includes(data.deviceType) &&
+      (data.wakeLockEnabled === undefined || typeof data.wakeLockEnabled === 'boolean')
     )
   }
 

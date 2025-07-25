@@ -4,10 +4,13 @@ import { usePrayerCycleStore } from './stores/prayerCycle'
 import { TimerService } from './utils/TimerService'
 import { audioService } from './utils/AudioService'
 import { storageService } from './utils/StorageService'
+import { wakeLockService } from './utils/WakeLockService'
 import { STEP_DURATION_SECONDS } from './constants/prayerSteps'
+import type { UserSettings } from './types'
 import StepDisplay from './components/StepDisplay.vue'
 import ProgressIndicator from './components/ProgressIndicator.vue'
 import TimerControls from './components/TimerControls.vue'
+import SettingsPanel from './components/SettingsPanel.vue'
 
 // Pinia store connection
 const store = usePrayerCycleStore()
@@ -63,26 +66,15 @@ function handleResize() {
   }, 150) // 150ms debounce
 }
 
-// Screen wake lock functionality
-let wakeLock: any = null
-
+// Screen wake lock functionality using the service
 async function requestWakeLock() {
-  if ('wakeLock' in navigator && store.status === 'active') {
-    try {
-      wakeLock = await (navigator as any).wakeLock.request('screen')
-      console.log('Screen wake lock activated')
-    } catch (error) {
-      console.warn('Failed to activate screen wake lock:', error)
-    }
+  if (store.status === 'active') {
+    await wakeLockService.requestWakeLock()
   }
 }
 
 function releaseWakeLock() {
-  if (wakeLock) {
-    wakeLock.release()
-    wakeLock = null
-    console.log('Screen wake lock released')
-  }
+  wakeLockService.releaseWakeLock()
 }
 
 // Timer management
@@ -178,6 +170,11 @@ function handleRestart() {
   storageService.clearSession()
 }
 
+function handleSettingsUpdate(newSettings: Partial<UserSettings>) {
+  store.updateSettings(newSettings)
+  storageService.saveSettings(store.settings)
+}
+
 // Computed properties for template
 const currentStep = computed(() => store.currentPrayerStep)
 const isTransitioning = computed(() => store.status === 'transitioning')
@@ -201,6 +198,19 @@ watch(() => store.status, (newStatus, oldStatus) => {
   } else if (newStatus === 'completed' || newStatus === 'idle') {
     storageService.clearSession()
   }
+})
+
+// Watch for wake lock setting changes
+watch(() => store.settings.wakeLockEnabled, (enabled) => {
+  wakeLockService.setEnabled(enabled)
+  
+  // If enabling and currently active, request wake lock
+  if (enabled && store.status === 'active') {
+    requestWakeLock()
+  }
+  
+  // Save updated settings
+  storageService.saveSettings(store.settings)
 })
 
 // Component lifecycle hooks
@@ -234,6 +244,9 @@ onMounted(async () => {
     store.updateSettings({ audioEnabled: false })
   }
   
+  // Initialize wake lock service
+  wakeLockService.setEnabled(savedSettings.wakeLockEnabled)
+  
   // Attempt session recovery
   const savedSession = storageService.loadSession()
   if (savedSession && (savedSession.status === 'active' || savedSession.status === 'paused')) {
@@ -257,8 +270,8 @@ onUnmounted(() => {
   // Cleanup timer service
   timerService.stop()
   
-  // Release wake lock
-  releaseWakeLock()
+  // Dispose wake lock service
+  wakeLockService.dispose()
   
   // Remove event listeners
   window.removeEventListener('resize', handleResize)
@@ -295,6 +308,8 @@ function handleVisibilityChange() {
     if (store.status === 'active') {
       requestWakeLock()
     }
+    // Let wake lock service handle visibility changes
+    wakeLockService.handleVisibilityChange()
   }
 }
 </script>
@@ -305,7 +320,14 @@ function handleVisibilityChange() {
     <!-- Mobile Header -->
     <header class="prayer-header-mobile">
       <div class="header-content">
-        <h1 class="text-xl font-bold text-primary">Prayer Cycle</h1>
+        <div class="header-title-section">
+          <h1 class="text-xl font-bold text-primary">Prayer Cycle</h1>
+          <!-- <SettingsPanel
+            :settings="store.settings"
+            :device-type="deviceType"
+            @update-settings="handleSettingsUpdate"
+          /> -->
+        </div>
         <TimerControls
           :status="store.status"
           :device-type="deviceType"
@@ -350,7 +372,14 @@ function handleVisibilityChange() {
     <!-- Desktop Header -->
     <header class="prayer-header-desktop">
       <div class="header-content">
-        <h1 class="text-projector-title">Prayer Cycle</h1>
+        <div class="header-title-section">
+          <h1 class="text-projector-title">Prayer Cycle</h1>
+          <!-- <SettingsPanel
+            :settings="store.settings"
+            :device-type="deviceType"
+            @update-settings="handleSettingsUpdate"
+          /> -->
+        </div>
         <TimerControls
           :status="store.status"
           :device-type="deviceType"
