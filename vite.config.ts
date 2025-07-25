@@ -13,25 +13,61 @@ export default defineConfig({
     vueDevTools(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.png'],
       manifest: {
-        name: 'Prayer Cycle',
+        name: 'Prayer Cycle - Biblical Prayer Guide',
         short_name: 'Prayer Cycle',
-        description: 'A guided prayer application for 12 biblical prayer methods',
+        description: 'A guided prayer application that leads you through 12 biblical prayer methods over 60 minutes',
         theme_color: '#2cace2',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'any',
+        start_url: '/',
+        scope: '/',
+        categories: ['lifestyle', 'spirituality'],
         icons: [
           {
-            src: 'favicon.ico',
-            sizes: '64x64 32x32 24x24 16x16',
-            type: 'image/x-icon'
+            src: 'favicon-16x16.png',
+            sizes: '16x16',
+            type: 'image/png'
+          },
+          {
+            src: 'favicon-32x32.png',
+            sizes: '32x32',
+            type: 'image/png'
+          },
+          {
+            src: 'android-chrome-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp3}'],
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:mp3|wav|ogg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          }
+        ]
       }
     })
   ],

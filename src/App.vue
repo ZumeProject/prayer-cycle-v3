@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePrayerCycleStore } from './stores/prayerCycle'
+import { usePWA } from './composables/usePWA'
 import { TimerService } from './utils/TimerService'
 import { audioService } from './utils/AudioService'
 import { storageService } from './utils/StorageService'
@@ -14,6 +15,9 @@ import SettingsPanel from './components/SettingsPanel.vue'
 
 // Pinia store connection
 const store = usePrayerCycleStore()
+
+// PWA functionality
+const { isOnline, isInstallable, installPWA, isPWA } = usePWA()
 
 // Services
 const timerService = new TimerService()
@@ -317,6 +321,18 @@ function handleVisibilityChange() {
 <template>
   <!-- Mobile Layout -->
   <div v-if="deviceType === 'mobile'" class="prayer-app-mobile">
+    <!-- Offline Status Banner -->
+    <div v-if="!isOnline" class="offline-banner">
+      <span class="offline-icon">📱</span>
+      <span class="offline-text">Offline Mode - All features available</span>
+    </div>
+    
+    <!-- PWA Install Banner -->
+    <div v-if="isInstallable && !isPWA" class="install-banner">
+      <span class="install-text">Install Prayer Cycle for better experience</span>
+      <button @click="installPWA" class="install-btn">Install</button>
+    </div>
+    
     <!-- Mobile Header -->
     <header class="prayer-header-mobile">
       <div class="header-content">
@@ -369,6 +385,18 @@ function handleVisibilityChange() {
 
   <!-- Desktop Layout -->
   <div v-else class="prayer-app-desktop">
+    <!-- Offline Status Banner -->
+    <div v-if="!isOnline" class="offline-banner desktop">
+      <span class="offline-icon">💻</span>
+      <span class="offline-text">Offline Mode - All features available</span>
+    </div>
+    
+    <!-- PWA Install Banner -->
+    <div v-if="isInstallable && !isPWA" class="install-banner desktop">
+      <span class="install-text">Install Prayer Cycle for better experience</span>
+      <button @click="installPWA" class="install-btn">Install</button>
+    </div>
+    
     <!-- Desktop Header -->
     <header class="prayer-header-desktop">
       <div class="header-content">
@@ -482,6 +510,80 @@ function handleVisibilityChange() {
   }
 }
 
+/* PWA Offline and Install Banners */
+.offline-banner {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: center;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.offline-banner.desktop {
+  font-size: 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.offline-icon {
+  font-size: 1.2em;
+}
+
+.offline-text {
+  font-weight: 500;
+}
+
+.install-banner {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: center;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.install-banner.desktop {
+  font-size: 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.install-text {
+  font-weight: 500;
+}
+
+.install-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.install-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.install-btn:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .prayer-header-mobile,
@@ -490,6 +592,15 @@ function handleVisibilityChange() {
   .prayer-controls-section-mobile,
   .prayer-controls-desktop {
     border: 2px solid var(--color-text);
+  }
+  
+  .offline-banner {
+    border: 2px solid var(--color-text);
+    background-color: var(--color-background);
+  }
+  
+  .install-banner {
+    border: 2px solid white;
   }
 }
 </style>
