@@ -135,7 +135,6 @@ describe('TimerControls Integration', () => {
 
       expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
       expect(wrapper.find('.timer-controls--mobile').exists()).toBe(false)
-      expect(wrapper.find('.timer-controls__shortcuts').exists()).toBe(true)
     })
   })
 
@@ -154,12 +153,10 @@ describe('TimerControls Integration', () => {
         expect(button.attributes('aria-label')).toBeTruthy()
       })
 
-      // Check tabindex for keyboard navigation
-      const controlsContainer = wrapper.find('.timer-controls')
-      expect(controlsContainer.attributes('tabindex')).toBe('0')
+      // Component should be accessible without tabindex since we removed keyboard shortcuts
     })
 
-    it('shows keyboard shortcuts for desktop users', () => {
+    it('does not show keyboard shortcuts since they were removed', () => {
       wrapper = mount(TimerControls, {
         props: {
           status: 'idle' as PrayerStatus,
@@ -168,10 +165,7 @@ describe('TimerControls Integration', () => {
       })
 
       const shortcutsHint = wrapper.find('.timer-controls__shortcut-hint')
-      expect(shortcutsHint.exists()).toBe(true)
-      expect(shortcutsHint.text()).toContain('Space: Play/Pause')
-      expect(shortcutsHint.text()).toContain('N: Next')
-      expect(shortcutsHint.text()).toContain('R: Restart')
+      expect(shortcutsHint.exists()).toBe(false)
     })
   })
 

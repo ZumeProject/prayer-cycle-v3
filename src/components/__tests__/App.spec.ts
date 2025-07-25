@@ -100,7 +100,6 @@ describe('App (PrayerCycleApp)', () => {
     // Check that all child components are rendered
     expect(wrapper.findComponent({ name: 'StepDisplay' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'ProgressIndicator' }).exists()).toBe(true)
-    expect(wrapper.findComponent({ name: 'CountdownTimer' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'TimerControls' }).exists()).toBe(true)
   })
 

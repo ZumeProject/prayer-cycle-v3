@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AudioService } from '../AudioService';
 
+// Mock the MP3 import
+vi.mock('@/assets/clock-chime.mp3', () => ({
+  default: 'mocked-audio-url'
+}));
+
+// Mock fetch for audio loading
+global.fetch = vi.fn();
+
 // Create a simpler test approach focusing on core functionality
 describe('AudioService', () => {
   let audioService: AudioService;
@@ -30,6 +38,7 @@ describe('AudioService', () => {
       close: vi.fn().mockResolvedValue(undefined),
       createBuffer: vi.fn().mockReturnValue(mockAudioBuffer),
       createBufferSource: vi.fn().mockReturnValue(mockBufferSource),
+      decodeAudioData: vi.fn().mockResolvedValue(mockAudioBuffer),
       destination: {}
     };
 
@@ -48,6 +57,11 @@ describe('AudioService', () => {
     global.AudioContext = vi.fn().mockImplementation(() => mockAudioContext);
     (global as any).webkitAudioContext = vi.fn().mockImplementation(() => mockAudioContext);
     global.btoa = vi.fn().mockReturnValue('mocked-base64-string');
+    
+    // Mock fetch for loading audio files
+    (global.fetch as any).mockResolvedValue({
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
+    });
   });
 
   afterEach(() => {
@@ -274,9 +288,7 @@ describe('AudioService', () => {
   });
 
   describe('sound generation', () => {
-    it('should generate audio data URL for HTML5 Audio', async () => {
-      // This tests the internal generateAudioDataUrl method indirectly
-      // by checking that btoa is called during HTML5 Audio initialization
+    it('should use MP3 file for HTML5 Audio', async () => {
       global.AudioContext = vi.fn().mockImplementation(() => {
         throw new Error('Web Audio API not supported');
       });
@@ -292,8 +304,7 @@ describe('AudioService', () => {
 
       await audioService.initialize();
       
-      expect(btoa).toHaveBeenCalled();
-      expect(Audio).toHaveBeenCalledWith(expect.stringContaining('data:audio/wav;base64,'));
+      expect(Audio).toHaveBeenCalledWith('mocked-audio-url');
     });
   });
 });

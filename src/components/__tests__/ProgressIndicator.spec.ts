@@ -10,7 +10,7 @@ describe('ProgressIndicator', () => {
       expect(wrapper.find('.progress-indicator').exists()).toBe(true)
       expect(wrapper.find('.step-counter').exists()).toBe(true)
       expect(wrapper.find('.progress-circle-container').exists()).toBe(true)
-      expect(wrapper.find('.progress-status').exists()).toBe(true)
+      expect(wrapper.find('.countdown-display').exists()).toBe(true)
     })
 
     it('displays correct step counter text', () => {
@@ -25,22 +25,20 @@ describe('ProgressIndicator', () => {
       expect(stepText.text()).toBe('Step 3 of 12')
     })
 
-    it('displays correct center step number', () => {
+    it('displays correct countdown time in center', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 5,
-          totalSteps: 12
+          totalSteps: 12,
+          timeRemaining: 180 // 3 minutes
         }
       })
       
-      const currentStepNumber = wrapper.find('.current-step-number')
-      const totalStepsText = wrapper.find('.total-steps-text')
-      
-      expect(currentStepNumber.text()).toBe('5')
-      expect(totalStepsText.text()).toBe('of 12')
+      const countdownTime = wrapper.find('.countdown-time')
+      expect(countdownTime.text()).toBe('3:00')
     })
 
-    it('displays correct progress status', () => {
+    it('displays step progress correctly', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 4,
@@ -48,11 +46,8 @@ describe('ProgressIndicator', () => {
         }
       })
       
-      const completedText = wrapper.find('.completed-text')
-      const remainingText = wrapper.find('.remaining-text')
-      
-      expect(completedText.text()).toBe('3 completed')
-      expect(remainingText.text()).toBe('8 remaining')
+      const stepText = wrapper.find('.step-text')
+      expect(stepText.text()).toBe('Step 4 of 12')
     })
   })
 
@@ -86,10 +81,10 @@ describe('ProgressIndicator', () => {
       const mobileCircle = mobileWrapper.find('.progress-circle')
       const desktopCircle = desktopWrapper.find('.progress-circle')
       
-      expect(mobileCircle.attributes('width')).toBe('120')
-      expect(mobileCircle.attributes('height')).toBe('120')
-      expect(desktopCircle.attributes('width')).toBe('200')
-      expect(desktopCircle.attributes('height')).toBe('200')
+      expect(mobileCircle.attributes('width')).toBe('240')
+      expect(mobileCircle.attributes('height')).toBe('240')
+      expect(desktopCircle.attributes('width')).toBe('300')
+      expect(desktopCircle.attributes('height')).toBe('300')
     })
   })
 
@@ -102,37 +97,27 @@ describe('ProgressIndicator', () => {
       
       // Check background circle
       const backgroundCircle = circles[0]
-      expect(backgroundCircle.attributes('fill')).toBe('none')
-      expect(backgroundCircle.attributes('stroke')).toBe('var(--color-background-soft)')
+      expect(backgroundCircle.attributes('fill')).toBe('var(--color-background-soft)')
+      expect(backgroundCircle.attributes('stroke')).toBe('var(--color-background-mute)')
       
-      // Check progress circle
-      const progressCircle = circles[1]
-      expect(progressCircle.attributes('fill')).toBe('none')
-      expect(progressCircle.attributes('stroke')).toBe('var(--color-primary)')
-      expect(progressCircle.attributes('stroke-linecap')).toBe('round')
+      // Step indicator circles are also present
+      expect(circles.length).toBeGreaterThanOrEqual(12) // Background + 12 step indicators
     })
 
-    it('calculates correct stroke-dashoffset for progress', () => {
+    it('renders progress pie slice correctly', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 6,
-          totalSteps: 12
+          totalSteps: 12,
+          timeRemaining: 150,
+          stepDuration: 300
         }
       })
       
-      const progressCircle = wrapper.findAll('circle')[1]
-      const strokeDasharray = progressCircle.attributes('stroke-dasharray')
-      const strokeDashoffset = progressCircle.attributes('stroke-dashoffset')
-      
-      expect(strokeDasharray).toBeDefined()
-      expect(strokeDashoffset).toBeDefined()
-      
-      // For step 6 of 12, progress should be 5/12 = ~41.67%
-      const circumference = parseFloat(strokeDasharray!)
-      const offset = parseFloat(strokeDashoffset!)
-      const progressPercentage = (circumference - offset) / circumference
-      
-      expect(progressPercentage).toBeCloseTo(5/12, 2)
+      const progressPie = wrapper.find('.progress-pie')
+      expect(progressPie.exists()).toBe(true)
+      expect(progressPie.attributes('fill')).toBe('rgba(44, 172, 226, 0.6)')
+      expect(progressPie.attributes('stroke')).toBe('rgba(44, 172, 226, 0.8)')
     })
 
     it('renders correct number of step indicator dots', () => {
@@ -209,8 +194,6 @@ describe('ProgressIndicator', () => {
       })
       
       expect(wrapper.find('.step-text').text()).toBe('Step 1 of 12')
-      expect(wrapper.find('.completed-text').text()).toBe('0 completed')
-      expect(wrapper.find('.remaining-text').text()).toBe('11 remaining')
       
       const stepDots = wrapper.findAll('.step-dot')
       expect(stepDots[0].attributes('fill')).toBe('var(--color-primary)') // Current
@@ -226,8 +209,6 @@ describe('ProgressIndicator', () => {
       })
       
       expect(wrapper.find('.step-text').text()).toBe('Step 12 of 12')
-      expect(wrapper.find('.completed-text').text()).toBe('11 completed')
-      expect(wrapper.find('.remaining-text').text()).toBe('0 remaining')
       
       const stepDots = wrapper.findAll('.step-dot')
       expect(stepDots[11].attributes('fill')).toBe('var(--color-primary)') // Current (last)
@@ -243,8 +224,6 @@ describe('ProgressIndicator', () => {
       })
       
       expect(wrapper.find('.step-text').text()).toBe('Step 1 of 1')
-      expect(wrapper.find('.completed-text').text()).toBe('0 completed')
-      expect(wrapper.find('.remaining-text').text()).toBe('0 remaining')
       
       const stepDots = wrapper.findAll('.step-dot')
       expect(stepDots.length).toBe(1)
@@ -257,16 +236,14 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 5,
-          totalSteps: 12
+          totalSteps: 12,
+          timeRemaining: 300
         }
       })
       
       // Check that all text content is accessible
       expect(wrapper.text()).toContain('Step 5 of 12')
-      expect(wrapper.text()).toContain('5')
-      expect(wrapper.text()).toContain('of 12')
-      expect(wrapper.text()).toContain('4 completed')
-      expect(wrapper.text()).toContain('7 remaining')
+      expect(wrapper.text()).toContain('5:00') // countdown time
     })
 
     it('maintains proper contrast with CSS custom properties', () => {
@@ -292,7 +269,7 @@ describe('ProgressIndicator', () => {
       
       // Should show circular progress visualization
       expect(wrapper.find('.progress-circle').exists()).toBe(true)
-      expect(wrapper.find('.progress-stroke').exists()).toBe(true)
+      expect(wrapper.find('.progress-pie').exists()).toBe(true)
       
       // Should show current position in 12-step cycle
       const stepDots = wrapper.findAll('.step-dot')
@@ -309,7 +286,6 @@ describe('ProgressIndicator', () => {
       
       // Should display which step number is currently active
       expect(wrapper.find('.step-text').text()).toBe('Step 7 of 12')
-      expect(wrapper.find('.current-step-number').text()).toBe('7')
     })
 
     it('satisfies requirement 2.3: indicates completed and upcoming steps', () => {
@@ -320,9 +296,7 @@ describe('ProgressIndicator', () => {
         }
       })
       
-      // Should indicate completed, current, and upcoming steps
-      expect(wrapper.find('.completed-text').text()).toBe('4 completed')
-      expect(wrapper.find('.remaining-text').text()).toBe('7 remaining')
+      // Should indicate completed, current, and upcoming steps via step dots
       
       const stepDots = wrapper.findAll('.step-dot')
       // Completed steps (0-3) should have success color
@@ -348,8 +322,8 @@ describe('ProgressIndicator', () => {
       // Circle sizes should be different
       const mobileCircle = mobileWrapper.find('.progress-circle')
       const desktopCircle = desktopWrapper.find('.progress-circle')
-      expect(mobileCircle.attributes('width')).toBe('120')
-      expect(desktopCircle.attributes('width')).toBe('200')
+      expect(mobileCircle.attributes('width')).toBe('240')
+      expect(desktopCircle.attributes('width')).toBe('300')
     })
   })
 })

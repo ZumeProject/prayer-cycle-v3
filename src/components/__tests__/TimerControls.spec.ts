@@ -7,9 +7,7 @@ describe('TimerControls', () => {
   let wrapper: any
 
   beforeEach(() => {
-    // Mock global addEventListener/removeEventListener
-    vi.spyOn(document, 'addEventListener')
-    vi.spyOn(document, 'removeEventListener')
+    // Setup for each test
   })
 
   afterEach(() => {
@@ -42,7 +40,6 @@ describe('TimerControls', () => {
 
       expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
       expect(wrapper.find('.timer-controls--mobile').exists()).toBe(false)
-      expect(wrapper.find('.timer-controls__shortcuts').exists()).toBe(true)
     })
 
     it('renders all control buttons', () => {
@@ -214,133 +211,6 @@ describe('TimerControls', () => {
     })
   })
 
-  describe('Keyboard Shortcuts (Desktop)', () => {
-    it('sets up global keyboard listener on desktop mount', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
-
-    it('removes global keyboard listener on desktop unmount', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      wrapper.unmount()
-
-      expect(document.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
-
-    it('does not set up keyboard listener on mobile', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
-        }
-      })
-
-      expect(document.addEventListener).not.toHaveBeenCalled()
-    })
-
-    it('handles spacebar key for play/pause', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      await controlsElement.trigger('keydown', { key: ' ' })
-
-      expect(wrapper.emitted('play')).toHaveLength(1)
-    })
-
-    it('handles "n" key for next step', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'active' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      await controlsElement.trigger('keydown', { key: 'n' })
-
-      expect(wrapper.emitted('next')).toHaveLength(1)
-    })
-
-    it('handles "r" key for restart', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'active' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      await controlsElement.trigger('keydown', { key: 'r' })
-
-      expect(wrapper.emitted('restart')).toHaveLength(1)
-    })
-
-    it('handles uppercase keyboard shortcuts', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'active' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      
-      await controlsElement.trigger('keydown', { key: 'N' })
-      expect(wrapper.emitted('next')).toHaveLength(1)
-      
-      await controlsElement.trigger('keydown', { key: 'R' })
-      expect(wrapper.emitted('restart')).toHaveLength(1)
-    })
-
-    it('prevents default behavior for keyboard shortcuts', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'active' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      const mockEvent = {
-        key: ' ',
-        preventDefault: vi.fn()
-      }
-      
-      await controlsElement.trigger('keydown', mockEvent)
-      expect(mockEvent.preventDefault).toHaveBeenCalled()
-    })
-
-    it('ignores keyboard shortcuts on mobile', async () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
-        }
-      })
-
-      const controlsElement = wrapper.find('.timer-controls')
-      await controlsElement.trigger('keydown', { key: ' ' })
-
-      expect(wrapper.emitted('play')).toBeFalsy()
-    })
-  })
 
   describe('Accessibility', () => {
     it('has proper ARIA labels for all buttons', () => {
@@ -356,44 +226,6 @@ describe('TimerControls', () => {
       })
     })
 
-    it('has proper tabindex for keyboard navigation', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const controlsContainer = wrapper.find('.timer-controls')
-      expect(controlsContainer.attributes('tabindex')).toBe('0')
-    })
-
-    it('shows keyboard shortcuts hint on desktop', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      const shortcutsHint = wrapper.find('.timer-controls__shortcut-hint')
-      expect(shortcutsHint.exists()).toBe(true)
-      expect(shortcutsHint.text()).toContain('Space: Play/Pause')
-      expect(shortcutsHint.text()).toContain('N: Next')
-      expect(shortcutsHint.text()).toContain('R: Restart')
-    })
-
-    it('does not show keyboard shortcuts hint on mobile', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
-        }
-      })
-
-      const shortcutsHint = wrapper.find('.timer-controls__shortcut-hint')
-      expect(shortcutsHint.exists()).toBe(false)
-    })
   })
 
   describe('Visual States', () => {

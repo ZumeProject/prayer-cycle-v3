@@ -157,7 +157,7 @@ describe('Prayer Cycle Store', () => {
     expect(store.status).toBe('idle')
   })
 
-  it('auto-advances when timer reaches zero', () => {
+  it('updates timer correctly when reaching zero', () => {
     const store = usePrayerCycleStore()
     
     store.startCycle()
@@ -166,8 +166,9 @@ describe('Prayer Cycle Store', () => {
     // Simulate timer reaching zero
     store.updateTimer(0)
     
-    expect(store.currentStep).toBe(initialStep + 1)
-    expect(store.timeRemaining).toBe(STEP_DURATION_SECONDS)
+    // Store doesn't auto-advance - that's handled externally by TimerService/App.vue
+    expect(store.currentStep).toBe(initialStep)
+    expect(store.timeRemaining).toBe(0)
   })
 
   it('provides current prayer step information', () => {

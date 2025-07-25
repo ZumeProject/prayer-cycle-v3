@@ -5,8 +5,6 @@
       `timer-controls--${deviceType}`,
       { 'timer-controls--disabled': isCompleted }
     ]"
-    @keydown="handleKeydown"
-    tabindex="0"
   >
     <!-- Play/Pause Button -->
     <button
@@ -81,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import type { PrayerStatus } from '@/types'
 
 interface Props {
@@ -151,53 +149,6 @@ function handleNext(): void {
 function handleRestart(): void {
   emit('restart')
 }
-
-// Keyboard shortcuts for desktop accessibility
-function handleKeydown(event: KeyboardEvent): void {
-  if (props.deviceType !== 'desktop') return
-  
-  // Prevent default behavior for our shortcuts
-  const shortcuts = [' ', 'Space', 'n', 'N', 'r', 'R']
-  if (shortcuts.includes(event.key)) {
-    event.preventDefault()
-  }
-  
-  switch (event.key) {
-    case ' ':
-    case 'Space':
-      handlePlayPause()
-      break
-    case 'n':
-    case 'N':
-      handleNext()
-      break
-    case 'r':
-    case 'R':
-      handleRestart()
-      break
-  }
-}
-
-// Global keyboard event listener for desktop
-function handleGlobalKeydown(event: KeyboardEvent): void {
-  // Only handle global shortcuts on desktop and when not typing in an input
-  if (props.deviceType !== 'desktop') return
-  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return
-  
-  handleKeydown(event)
-}
-
-onMounted(() => {
-  if (props.deviceType === 'desktop') {
-    document.addEventListener('keydown', handleGlobalKeydown)
-  }
-})
-
-onUnmounted(() => {
-  if (props.deviceType === 'desktop') {
-    document.removeEventListener('keydown', handleGlobalKeydown)
-  }
-})
 </script>
 
 <style scoped>
@@ -319,17 +270,6 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.timer-controls__shortcuts {
-  margin-top: var(--spacing-sm);
-  text-align: center;
-}
-
-.timer-controls__shortcut-hint {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
 /* Mobile-specific styles */
 .timer-controls--mobile {
   flex-wrap: wrap;
@@ -377,14 +317,6 @@ onUnmounted(() => {
 .timer-controls--desktop .timer-controls__label {
   font-size: var(--font-size-lg);
   font-weight: 600;
-}
-
-.timer-controls--desktop .timer-controls__shortcuts {
-  margin-top: var(--spacing-md);
-}
-
-.timer-controls--desktop .timer-controls__shortcut-hint {
-  font-size: var(--font-size-sm);
 }
 
 /* Responsive breakpoints for mobile */
