@@ -2,12 +2,13 @@
 
 /* ===== PRAYER CYCLE APP STYLES ===== */
 #app {
-  min-height: 100vh;
+  height: 100vh;
   background: var(--color-background);
   color: var(--color-text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ===== RESPONSIVE LAYOUT SYSTEM ===== */
@@ -71,9 +72,10 @@
 .prayer-app-mobile {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: calc(100vh - var(--header-height));
   padding: var(--spacing-sm);
   gap: var(--spacing-md);
+  overflow: hidden;
 }
 
 .prayer-header-mobile {
@@ -132,7 +134,7 @@
     "header header"
     "main sidebar"
     "controls controls";
-  min-height: 100vh;
+  height: 100%;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
 }

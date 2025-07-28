@@ -624,8 +624,8 @@ function handleVisibilityChange() {
 
 /* Dropdown Panel Styles */
 .dropdown-panel {
-  position: fixed;
-  top: 70px;
+  position: absolute;
+  top: var(--header-height);
   right: var(--spacing-lg);
   z-index: var(--z-dropdown);
   background: var(--color-background);
@@ -638,17 +638,18 @@ function handleVisibilityChange() {
 }
 
 
-/* Layout adjustments for fixed header */
+/* Layout adjustments - no padding needed for static header */
 .prayer-app-mobile,
 .prayer-app-desktop-wrapper {
-  padding-top: 70px; /* Account for fixed header height */
+  /* No padding-top needed since header is now static */
 }
 
 /* Desktop wrapper to contain controls outside grid */
 .prayer-app-desktop-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 70px);
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
 }
 
 /* Override the grid padding since it's now inside wrapper */
