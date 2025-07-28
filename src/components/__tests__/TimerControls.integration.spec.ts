@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mountWithI18n as mount } from '@/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import TimerControls from '../TimerControls.vue'
 import { usePrayerCycleStore } from '@/stores/prayerCycle'
@@ -27,9 +27,6 @@ describe('TimerControls Integration', () => {
       wrapper = mount(TimerControls, {
         props: {
           status: store.status as PrayerStatus
-        },
-        global: {
-          plugins: [createPinia()]
         }
       })
 

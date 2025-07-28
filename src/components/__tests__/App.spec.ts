@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mountWithI18n } from '@/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import App from '@/App.vue'
 
@@ -60,7 +60,7 @@ describe('App (PrayerCycleApp)', () => {
   })
 
   it('should render the mobile layout by default', () => {
-    const wrapper = mount(App)
+    const wrapper = mountWithI18n(App)
     
     expect(wrapper.find('.prayer-app-mobile').exists()).toBe(true)
     expect(wrapper.find('.prayer-app-desktop').exists()).toBe(false)
@@ -68,14 +68,14 @@ describe('App (PrayerCycleApp)', () => {
 
 
   it('should display the correct step information', () => {
-    const wrapper = mount(App)
+    const wrapper = mountWithI18n(App)
     
     // Should show step 1 of 12 initially
     expect(wrapper.text()).toContain('Step 1 of 12')
   })
 
   it('should render all required components', () => {
-    const wrapper = mount(App)
+    const wrapper = mountWithI18n(App)
     
     // Check that all child components are rendered
     expect(wrapper.findComponent({ name: 'StepDisplay' }).exists()).toBe(true)
@@ -84,7 +84,7 @@ describe('App (PrayerCycleApp)', () => {
   })
 
   it('should handle timer control events', async () => {
-    const wrapper = mount(App)
+    const wrapper = mountWithI18n(App)
     
     // Find the TimerControls component and emit play event
     const timerControls = wrapper.findComponent({ name: 'TimerControls' })
@@ -98,7 +98,7 @@ describe('App (PrayerCycleApp)', () => {
   it('should initialize services on mount', () => {
     // Just verify the component mounts without errors
     // The service initialization is already mocked at the module level
-    const wrapper = mount(App)
+    const wrapper = mountWithI18n(App)
     expect(wrapper.exists()).toBe(true)
     
     // Verify the component has the expected structure

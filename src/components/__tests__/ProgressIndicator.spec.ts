@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mountWithI18n as mount } from '@/test-utils'
 import ProgressIndicator from '../ProgressIndicator.vue'
 
 describe('ProgressIndicator', () => {

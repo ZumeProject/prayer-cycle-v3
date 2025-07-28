@@ -174,13 +174,13 @@ describe('Prayer Cycle Store', () => {
     
     store.startCycle()
     
-    expect(store.currentPrayerStep.name).toBe('PRAISE')
+    expect(store.currentPrayerStep.name).toBe('prayer.steps.praise.name')
     expect(store.currentPrayerStep.id).toBe(0)
     expect(store.currentPrayerStep.duration).toBe(STEP_DURATION_SECONDS)
     
     store.nextStep()
     
-    expect(store.currentPrayerStep.name).toBe('WAIT')
+    expect(store.currentPrayerStep.name).toBe('prayer.steps.wait.name')
     expect(store.currentPrayerStep.id).toBe(1)
   })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mountWithI18n } from '@/test-utils'
 import StepDisplay from '../StepDisplay.vue'
 import type { PrayerStep } from '@/types'
 
@@ -21,10 +21,11 @@ const mockLongDescriptionStep: PrayerStep = {
 describe('StepDisplay', () => {
   describe('Component Rendering', () => {
     it('renders step name and description correctly', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -34,10 +35,11 @@ describe('StepDisplay', () => {
 
 
     it('applies transitioning class when isTransitioning is true', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
+          deviceType: 'desktop',
           isTransitioning: true
         }
       })
@@ -46,10 +48,11 @@ describe('StepDisplay', () => {
     })
 
     it('does not apply transitioning class when isTransitioning is false', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
+          deviceType: 'desktop',
           isTransitioning: false
         }
       })
@@ -62,10 +65,11 @@ describe('StepDisplay', () => {
 
   describe('Props Handling', () => {
     it('updates content when step prop changes', async () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -85,10 +89,11 @@ describe('StepDisplay', () => {
 
 
     it('handles timeRemaining prop correctly', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 150
+          timeRemaining: 150,
+          deviceType: 'desktop'
         }
       })
 
@@ -98,10 +103,11 @@ describe('StepDisplay', () => {
     })
 
     it('handles isTransitioning prop changes', async () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
+          deviceType: 'desktop',
           isTransitioning: false
         }
       })
@@ -115,10 +121,11 @@ describe('StepDisplay', () => {
 
   describe('Accessibility', () => {
     it('has proper semantic HTML structure', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -128,10 +135,11 @@ describe('StepDisplay', () => {
     })
 
     it('maintains readable text content', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -146,10 +154,11 @@ describe('StepDisplay', () => {
 
   describe('CSS Custom Properties', () => {
     it('applies primary color theming', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -171,10 +180,11 @@ describe('StepDisplay', () => {
         duration: 300
       }
 
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: emptyNameStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -190,10 +200,11 @@ describe('StepDisplay', () => {
         duration: 300
       }
 
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: emptyDescStep,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'desktop'
         }
       })
 
@@ -202,10 +213,11 @@ describe('StepDisplay', () => {
     })
 
     it('handles zero timeRemaining', () => {
-      const wrapper = mount(StepDisplay, {
+      const wrapper = mountWithI18n(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 0
+          timeRemaining: 0,
+          deviceType: 'desktop'
         }
       })
 
