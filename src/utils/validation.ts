@@ -73,8 +73,6 @@ export function isValidPrayerCycleState(state: Partial<PrayerCycleState>): state
     state.settings !== null &&
     typeof state.settings.audioEnabled === 'boolean' &&
     typeof state.settings.primaryColor === 'string' &&
-    typeof state.settings.deviceType === 'string' &&
-    (state.settings.deviceType === 'mobile' || state.settings.deviceType === 'desktop') &&
     typeof state.settings.wakeLockEnabled === 'boolean'
   )
 }
@@ -90,7 +88,6 @@ export function createDefaultPrayerCycleState(): PrayerCycleState {
     settings: {
       audioEnabled: true,
       primaryColor: '#2cace2',
-      deviceType: 'mobile',
       wakeLockEnabled: true
     }
   }

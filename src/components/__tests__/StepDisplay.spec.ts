@@ -24,8 +24,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -33,38 +32,12 @@ describe('StepDisplay', () => {
       expect(wrapper.find('.step-display__description').text()).toContain('Start your prayer hour by praising the Lord')
     })
 
-    it('applies correct CSS classes for mobile device type', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
-        }
-      })
-
-      expect(wrapper.find('.step-display').classes()).toContain('step-display--mobile')
-      expect(wrapper.find('.step-display').classes()).not.toContain('step-display--desktop')
-    })
-
-    it('applies correct CSS classes for desktop device type', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'desktop'
-        }
-      })
-
-      expect(wrapper.find('.step-display').classes()).toContain('step-display--desktop')
-      expect(wrapper.find('.step-display').classes()).not.toContain('step-display--mobile')
-    })
 
     it('applies transitioning class when isTransitioning is true', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
-          deviceType: 'mobile',
           isTransitioning: true
         }
       })
@@ -77,7 +50,6 @@ describe('StepDisplay', () => {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
-          deviceType: 'mobile',
           isTransitioning: false
         }
       })
@@ -86,121 +58,14 @@ describe('StepDisplay', () => {
     })
   })
 
-  describe('Mobile Device Type', () => {
-    it('renders with mobile-optimized styling', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
-        }
-      })
 
-      const stepDisplay = wrapper.find('.step-display')
-      expect(stepDisplay.classes()).toContain('step-display--mobile')
-      
-      // Check that mobile-specific elements are present
-      expect(wrapper.find('.step-display__name').exists()).toBe(true)
-      expect(wrapper.find('.step-display__description').exists()).toBe(true)
-    })
-
-    it('handles long text content appropriately on mobile', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockLongDescriptionStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
-        }
-      })
-
-      const name = wrapper.find('.step-display__name')
-      const description = wrapper.find('.step-display__description')
-      
-      expect(name.text()).toBe('VERY LONG STEP NAME FOR TESTING')
-      expect(description.text()).toContain('This is a very long description')
-    })
-
-    it('maintains proper structure for mobile layout', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
-        }
-      })
-
-      const content = wrapper.find('.step-display__content')
-      expect(content.exists()).toBe(true)
-      
-      const name = content.find('.step-display__name')
-      const description = content.find('.step-display__description')
-      
-      expect(name.exists()).toBe(true)
-      expect(description.exists()).toBe(true)
-    })
-  })
-
-  describe('Desktop Device Type', () => {
-    it('renders with desktop/projector-optimized styling', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'desktop'
-        }
-      })
-
-      const stepDisplay = wrapper.find('.step-display')
-      expect(stepDisplay.classes()).toContain('step-display--desktop')
-      
-      // Check that desktop-specific elements are present
-      expect(wrapper.find('.step-display__name').exists()).toBe(true)
-      expect(wrapper.find('.step-display__description').exists()).toBe(true)
-    })
-
-    it('handles long text content appropriately on desktop', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockLongDescriptionStep,
-          timeRemaining: 300,
-          deviceType: 'desktop'
-        }
-      })
-
-      const name = wrapper.find('.step-display__name')
-      const description = wrapper.find('.step-display__description')
-      
-      expect(name.text()).toBe('VERY LONG STEP NAME FOR TESTING')
-      expect(description.text()).toContain('This is a very long description')
-    })
-
-    it('maintains proper structure for desktop layout', () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'desktop'
-        }
-      })
-
-      const content = wrapper.find('.step-display__content')
-      expect(content.exists()).toBe(true)
-      
-      const name = content.find('.step-display__name')
-      const description = content.find('.step-display__description')
-      
-      expect(name.exists()).toBe(true)
-      expect(description.exists()).toBe(true)
-    })
-  })
 
   describe('Props Handling', () => {
     it('updates content when step prop changes', async () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -218,28 +83,12 @@ describe('StepDisplay', () => {
       expect(wrapper.find('.step-display__description').text()).toContain('Spend time waiting on the Lord')
     })
 
-    it('updates device type styling when deviceType prop changes', async () => {
-      const wrapper = mount(StepDisplay, {
-        props: {
-          step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
-        }
-      })
-
-      expect(wrapper.find('.step-display').classes()).toContain('step-display--mobile')
-
-      await wrapper.setProps({ deviceType: 'desktop' })
-      expect(wrapper.find('.step-display').classes()).toContain('step-display--desktop')
-      expect(wrapper.find('.step-display').classes()).not.toContain('step-display--mobile')
-    })
 
     it('handles timeRemaining prop correctly', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 150,
-          deviceType: 'mobile'
+          timeRemaining: 150
         }
       })
 
@@ -253,7 +102,6 @@ describe('StepDisplay', () => {
         props: {
           step: mockPrayerStep,
           timeRemaining: 300,
-          deviceType: 'mobile',
           isTransitioning: false
         }
       })
@@ -270,8 +118,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -284,8 +131,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -303,8 +149,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -329,8 +174,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: emptyNameStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -349,8 +193,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: emptyDescStep,
-          timeRemaining: 300,
-          deviceType: 'mobile'
+          timeRemaining: 300
         }
       })
 
@@ -362,8 +205,7 @@ describe('StepDisplay', () => {
       const wrapper = mount(StepDisplay, {
         props: {
           step: mockPrayerStep,
-          timeRemaining: 0,
-          deviceType: 'mobile'
+          timeRemaining: 0
         }
       })
 

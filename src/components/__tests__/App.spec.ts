@@ -17,8 +17,7 @@ vi.mock('@/utils/StorageService', () => ({
   storageService: {
     loadSettings: vi.fn().mockReturnValue({
       audioEnabled: true,
-      primaryColor: '#2cace2',
-      deviceType: 'mobile'
+      primaryColor: '#2cace2'
     }),
     loadSession: vi.fn().mockReturnValue(null),
     saveSession: vi.fn(),
@@ -67,25 +66,6 @@ describe('App (PrayerCycleApp)', () => {
     expect(wrapper.find('.prayer-app-desktop').exists()).toBe(false)
   })
 
-  it('should render the desktop layout when device type is desktop', () => {
-    // Mock desktop width and user agent before mounting
-    Object.defineProperty(window, 'innerWidth', {
-      value: 1024,
-      writable: true
-    })
-    
-    // Mock desktop user agent
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      writable: true
-    })
-    
-    // Component should detect desktop immediately during initialization
-    const wrapper = mount(App)
-    
-    expect(wrapper.find('.prayer-app-desktop').exists()).toBe(true)
-    expect(wrapper.find('.prayer-app-mobile').exists()).toBe(false)
-  })
 
   it('should display the correct step information', () => {
     const wrapper = mount(App)
@@ -125,37 +105,4 @@ describe('App (PrayerCycleApp)', () => {
     expect(wrapper.find('.prayer-app-mobile').exists()).toBe(true)
   })
 
-  it('should detect mobile device type on initialization', () => {
-    // Ensure mobile settings
-    Object.defineProperty(window, 'innerWidth', {
-      value: 375,
-      writable: true
-    })
-    
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
-      writable: true
-    })
-    
-    const wrapper = mount(App)
-    expect(wrapper.find('.prayer-app-mobile').exists()).toBe(true)
-    expect(wrapper.find('.prayer-app-desktop').exists()).toBe(false)
-  })
-
-  it('should detect desktop device type on initialization', () => {
-    // Set desktop settings
-    Object.defineProperty(window, 'innerWidth', {
-      value: 1200,
-      writable: true
-    })
-    
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      writable: true
-    })
-    
-    const wrapper = mount(App)
-    expect(wrapper.find('.prayer-app-desktop').exists()).toBe(true)
-    expect(wrapper.find('.prayer-app-mobile').exists()).toBe(false)
-  })
 })

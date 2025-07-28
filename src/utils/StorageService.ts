@@ -99,7 +99,6 @@ export class StorageService {
     const defaultSettings: UserSettings = {
       audioEnabled: true,
       primaryColor: '#2cace2',
-      deviceType: 'mobile',
       wakeLockEnabled: true
     }
 
@@ -116,9 +115,6 @@ export class StorageService {
           primaryColor: typeof parsedSettings.primaryColor === 'string' 
             ? parsedSettings.primaryColor 
             : defaultSettings.primaryColor,
-          deviceType: ['mobile', 'desktop'].includes(parsedSettings.deviceType)
-            ? parsedSettings.deviceType
-            : defaultSettings.deviceType,
           wakeLockEnabled: typeof parsedSettings.wakeLockEnabled === 'boolean'
             ? parsedSettings.wakeLockEnabled
             : defaultSettings.wakeLockEnabled
@@ -249,7 +245,6 @@ export class StorageService {
       typeof data === 'object' &&
       typeof data.audioEnabled === 'boolean' &&
       typeof data.primaryColor === 'string' &&
-      ['mobile', 'desktop'].includes(data.deviceType) &&
       (data.wakeLockEnabled === undefined || typeof data.wakeLockEnabled === 'boolean')
     )
   }

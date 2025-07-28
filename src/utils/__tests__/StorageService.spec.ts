@@ -38,7 +38,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 
@@ -54,7 +53,6 @@ describe('StorageService', () => {
       expect(defaultSettings).toEqual({
         audioEnabled: true,
         primaryColor: '#2cace2',
-        deviceType: 'mobile',
         wakeLockEnabled: true
       })
     })
@@ -63,8 +61,7 @@ describe('StorageService', () => {
       // Save invalid settings
       mockLocalStorage['prayer-cycle-settings'] = JSON.stringify({
         audioEnabled: 'invalid',
-        primaryColor: 123,
-        deviceType: 'invalid'
+        primaryColor: 123
       })
 
       const loadedSettings = storageService.loadSettings()
@@ -72,7 +69,6 @@ describe('StorageService', () => {
       expect(loadedSettings).toEqual({
         audioEnabled: true,
         primaryColor: '#2cace2',
-        deviceType: 'mobile',
         wakeLockEnabled: true
       })
     })
@@ -81,7 +77,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 
@@ -95,7 +90,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 
@@ -119,7 +113,6 @@ describe('StorageService', () => {
         settings: {
           audioEnabled: true,
           primaryColor: '#2cace2',
-          deviceType: 'mobile',
           wakeLockEnabled: true
         }
       }
@@ -142,7 +135,6 @@ describe('StorageService', () => {
         settings: {
           audioEnabled: true,
           primaryColor: '#2cace2',
-          deviceType: 'mobile',
           wakeLockEnabled: true
         }
       }
@@ -165,7 +157,6 @@ describe('StorageService', () => {
         settings: {
           audioEnabled: true,
           primaryColor: '#2cace2',
-          deviceType: 'mobile',
           wakeLockEnabled: true
         }
       }
@@ -177,7 +168,6 @@ describe('StorageService', () => {
         settings: {
           audioEnabled: true,
           primaryColor: '#2cace2',
-          deviceType: 'mobile',
           wakeLockEnabled: true
         }
       }
@@ -263,7 +253,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 
@@ -285,7 +274,6 @@ describe('StorageService', () => {
       expect(settings).toEqual({
         audioEnabled: true,
         primaryColor: '#2cace2',
-        deviceType: 'mobile',
         wakeLockEnabled: true
       })
     })
@@ -298,7 +286,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 
@@ -360,7 +347,6 @@ describe('StorageService', () => {
       const testSettings: UserSettings = {
         audioEnabled: false,
         primaryColor: '#ff0000',
-        deviceType: 'desktop',
         wakeLockEnabled: false
       }
 

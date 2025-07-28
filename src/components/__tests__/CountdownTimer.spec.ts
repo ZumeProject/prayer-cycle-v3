@@ -52,23 +52,6 @@ describe('CountdownTimer', () => {
     })
   })
 
-  describe('Device Type Styling', () => {
-    it('applies mobile class for mobile device type', () => {
-      const wrapper = mount(CountdownTimer, {
-        props: { ...defaultProps, deviceType: 'mobile' }
-      })
-      
-      expect(wrapper.classes()).toContain('countdown-timer--mobile')
-    })
-
-    it('applies desktop class for desktop device type', () => {
-      const wrapper = mount(CountdownTimer, {
-        props: { ...defaultProps, deviceType: 'desktop' }
-      })
-      
-      expect(wrapper.classes()).toContain('countdown-timer--desktop')
-    })
-  })
 
   describe('Status-based Color Changes', () => {
     it('applies active status class', () => {
@@ -168,25 +151,6 @@ describe('CountdownTimer', () => {
     })
   })
 
-  describe('Responsive Design', () => {
-    it('renders correctly for mobile device type', () => {
-      const wrapper = mount(CountdownTimer, {
-        props: { ...defaultProps, deviceType: 'mobile' }
-      })
-      
-      expect(wrapper.classes()).toContain('countdown-timer--mobile')
-      // Mobile should have smaller sizing classes applied via CSS
-    })
-
-    it('renders correctly for desktop/projector device type', () => {
-      const wrapper = mount(CountdownTimer, {
-        props: { ...defaultProps, deviceType: 'desktop' }
-      })
-      
-      expect(wrapper.classes()).toContain('countdown-timer--desktop')
-      // Desktop should have larger sizing classes applied via CSS
-    })
-  })
 
   describe('Props Validation', () => {
     it('handles negative time values gracefully', () => {

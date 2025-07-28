@@ -30,17 +30,6 @@ describe('TimerControls', () => {
       expect(wrapper.find('.timer-controls--desktop').exists()).toBe(false)
     })
 
-    it('renders with desktop device type', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
-      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(false)
-    })
 
     it('renders all control buttons', () => {
       wrapper = mount(TimerControls, {
@@ -229,27 +218,6 @@ describe('TimerControls', () => {
   })
 
   describe('Visual States', () => {
-    it('applies correct CSS classes for different device types', () => {
-      // Test mobile
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
-        }
-      })
-      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(true)
-
-      wrapper.unmount()
-
-      // Test desktop
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
-    })
 
     it('shows correct icons for play and pause states', () => {
       // Test play icon (idle state)

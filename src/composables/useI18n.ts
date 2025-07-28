@@ -15,7 +15,7 @@ export function useI18n() {
     SUPPORTED_LANGUAGES.find(lang => lang.code === locale.value) || SUPPORTED_LANGUAGES[0]
   )
 
-  const supportedLanguages = computed(() => SUPPORTED_LANGUAGES)
+  const supportedLanguages = computed(() => SUPPORTED_LANGUAGES.filter(lang => lang.enabled))
 
   /**
    * Change the application language
@@ -36,11 +36,11 @@ export function useI18n() {
   }
 
   /**
-   * Check if a language is supported
+   * Check if a language is supported and enabled
    * @param languageCode - The language code to check
    */
   const isLanguageSupported = (languageCode: string) => {
-    return SUPPORTED_LANGUAGES.some(lang => lang.code === languageCode)
+    return SUPPORTED_LANGUAGES.some(lang => lang.code === languageCode && lang.enabled)
   }
 
   /**

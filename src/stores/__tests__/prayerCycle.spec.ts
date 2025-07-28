@@ -16,7 +16,6 @@ describe('Prayer Cycle Store', () => {
     expect(store.status).toBe('idle')
     expect(store.settings.audioEnabled).toBe(true)
     expect(store.settings.primaryColor).toBe('#2cace2')
-    expect(store.settings.deviceType).toBe('mobile')
   })
 
   it('starts cycle correctly', () => {
@@ -118,10 +117,9 @@ describe('Prayer Cycle Store', () => {
   it('updates settings correctly', () => {
     const store = usePrayerCycleStore()
     
-    store.updateSettings({ audioEnabled: false, deviceType: 'desktop' })
+    store.updateSettings({ audioEnabled: false })
     
     expect(store.settings.audioEnabled).toBe(false)
-    expect(store.settings.deviceType).toBe('desktop')
     expect(store.settings.primaryColor).toBe('#2cace2') // Should remain unchanged
   })
 

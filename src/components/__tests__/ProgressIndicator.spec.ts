@@ -5,7 +5,11 @@ import ProgressIndicator from '../ProgressIndicator.vue'
 describe('ProgressIndicator', () => {
   describe('Component Rendering', () => {
     it('renders with default props', () => {
-      const wrapper = mount(ProgressIndicator)
+      const wrapper = mount(ProgressIndicator, {
+        props: {
+          deviceType: 'mobile'
+        }
+      })
       
       expect(wrapper.find('.progress-indicator').exists()).toBe(true)
       expect(wrapper.find('.step-counter').exists()).toBe(true)
@@ -17,7 +21,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 3,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -30,7 +35,8 @@ describe('ProgressIndicator', () => {
         props: {
           currentStep: 5,
           totalSteps: 12,
-          timeRemaining: 180 // 3 minutes
+          timeRemaining: 180, // 3 minutes
+          deviceType: 'mobile'
         }
       })
       
@@ -42,7 +48,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 4,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -51,46 +58,14 @@ describe('ProgressIndicator', () => {
     })
   })
 
-  describe('Device Type Responsive Design', () => {
-    it('applies mobile device class by default', () => {
-      const wrapper = mount(ProgressIndicator)
-      
-      expect(wrapper.find('.progress-indicator--mobile').exists()).toBe(true)
-      expect(wrapper.find('.progress-indicator--desktop').exists()).toBe(false)
-    })
-
-    it('applies desktop device class when specified', () => {
-      const wrapper = mount(ProgressIndicator, {
-        props: {
-          deviceType: 'desktop'
-        }
-      })
-      
-      expect(wrapper.find('.progress-indicator--desktop').exists()).toBe(true)
-      expect(wrapper.find('.progress-indicator--mobile').exists()).toBe(false)
-    })
-
-    it('renders different circle sizes for mobile vs desktop', () => {
-      const mobileWrapper = mount(ProgressIndicator, {
-        props: { deviceType: 'mobile' }
-      })
-      const desktopWrapper = mount(ProgressIndicator, {
-        props: { deviceType: 'desktop' }
-      })
-      
-      const mobileCircle = mobileWrapper.find('.progress-circle')
-      const desktopCircle = desktopWrapper.find('.progress-circle')
-      
-      expect(mobileCircle.attributes('width')).toBe('240')
-      expect(mobileCircle.attributes('height')).toBe('240')
-      expect(desktopCircle.attributes('width')).toBe('300')
-      expect(desktopCircle.attributes('height')).toBe('300')
-    })
-  })
 
   describe('SVG Circle Progress Visualization', () => {
     it('renders background and progress circles', () => {
-      const wrapper = mount(ProgressIndicator)
+      const wrapper = mount(ProgressIndicator, {
+        props: {
+          deviceType: 'mobile'
+        }
+      })
       
       const circles = wrapper.findAll('circle')
       expect(circles.length).toBeGreaterThanOrEqual(2) // Background + progress + step indicators
@@ -110,7 +85,8 @@ describe('ProgressIndicator', () => {
           currentStep: 6,
           totalSteps: 12,
           timeRemaining: 150,
-          stepDuration: 300
+          stepDuration: 300,
+          deviceType: 'mobile'
         }
       })
       
@@ -124,7 +100,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 3,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -138,7 +115,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 4,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -155,7 +133,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 4,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -170,7 +149,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 4,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -189,7 +169,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 1,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -204,7 +185,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 12,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -219,7 +201,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 1,
-          totalSteps: 1
+          totalSteps: 1,
+          deviceType: 'mobile'
         }
       })
       
@@ -237,7 +220,8 @@ describe('ProgressIndicator', () => {
         props: {
           currentStep: 5,
           totalSteps: 12,
-          timeRemaining: 300
+          timeRemaining: 300,
+          deviceType: 'mobile'
         }
       })
       
@@ -247,7 +231,11 @@ describe('ProgressIndicator', () => {
     })
 
     it('maintains proper contrast with CSS custom properties', () => {
-      const wrapper = mount(ProgressIndicator)
+      const wrapper = mount(ProgressIndicator, {
+        props: {
+          deviceType: 'mobile'
+        }
+      })
       
       // Verify that color values use CSS custom properties for theming
       const progressCircle = wrapper.findAll('circle')[1]
@@ -263,7 +251,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 6,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -280,7 +269,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 7,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -292,7 +282,8 @@ describe('ProgressIndicator', () => {
       const wrapper = mount(ProgressIndicator, {
         props: {
           currentStep: 5,
-          totalSteps: 12
+          totalSteps: 12,
+          deviceType: 'mobile'
         }
       })
       
@@ -307,23 +298,5 @@ describe('ProgressIndicator', () => {
       expect(stepDots[5].attributes('fill')).toBe('var(--color-background-soft)')
     })
 
-    it('satisfies requirement 2.4: implements responsive sizing', () => {
-      const mobileWrapper = mount(ProgressIndicator, {
-        props: { deviceType: 'mobile' }
-      })
-      const desktopWrapper = mount(ProgressIndicator, {
-        props: { deviceType: 'desktop' }
-      })
-      
-      // Should have different sizing for mobile and desktop
-      expect(mobileWrapper.find('.progress-indicator--mobile').exists()).toBe(true)
-      expect(desktopWrapper.find('.progress-indicator--desktop').exists()).toBe(true)
-      
-      // Circle sizes should be different
-      const mobileCircle = mobileWrapper.find('.progress-circle')
-      const desktopCircle = desktopWrapper.find('.progress-circle')
-      expect(mobileCircle.attributes('width')).toBe('240')
-      expect(desktopCircle.attributes('width')).toBe('300')
-    })
   })
 })

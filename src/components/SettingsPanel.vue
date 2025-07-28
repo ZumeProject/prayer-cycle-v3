@@ -97,36 +97,6 @@
           </div>
         </div>
 
-        <!-- Device Type Override (for testing) -->
-        <div v-if="showAdvanced" class="settings-panel__section">
-          <h4 class="settings-panel__section-title">Advanced</h4>
-          <div class="settings-panel__option">
-            <label class="settings-panel__label">
-              <span class="settings-panel__label-text">Device Type Override</span>
-            </label>
-            <select
-              class="settings-panel__select"
-              :value="settings.deviceType"
-              @change="updateDeviceTypeSetting"
-            >
-              <option value="mobile">Mobile</option>
-              <option value="desktop">Desktop</option>
-            </select>
-            <p class="settings-panel__description">
-              Override automatic device detection (for testing purposes)
-            </p>
-          </div>
-        </div>
-
-        <!-- Advanced Settings Toggle -->
-        <div class="settings-panel__advanced-toggle">
-          <button
-            class="settings-panel__advanced-button"
-            @click="showAdvanced = !showAdvanced"
-          >
-            {{ showAdvanced ? 'Hide' : 'Show' }} Advanced Settings
-          </button>
-        </div>
       </div>
     </div>
 
@@ -161,7 +131,6 @@ const emit = defineEmits<Emits>()
 
 // Component state
 const isOpen = ref(false)
-const showAdvanced = ref(false)
 
 // Computed properties
 const wakeLockSupported = computed(() => wakeLockService.isWakeLockSupported())
@@ -173,7 +142,6 @@ function togglePanel(): void {
 
 function closePanel(): void {
   isOpen.value = false
-  showAdvanced.value = false
 }
 
 function updateAudioSetting(event: Event): void {
@@ -186,10 +154,6 @@ function updateWakeLockSetting(event: Event): void {
   emit('updateSettings', { wakeLockEnabled: target.checked })
 }
 
-function updateDeviceTypeSetting(event: Event): void {
-  const target = event.target as HTMLSelectElement
-  emit('updateSettings', { deviceType: target.value as 'mobile' | 'desktop' })
-}
 
 // Expose methods for parent components
 defineExpose({
@@ -401,46 +365,6 @@ defineExpose({
   font-weight: 500;
 }
 
-.settings-panel__select {
-  width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
-  background: var(--color-background);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--spacing-xs);
-}
-
-.settings-panel__select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(44, 172, 226, 0.2);
-}
-
-.settings-panel__advanced-toggle {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.settings-panel__advanced-button {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: none;
-  border-radius: 0.25rem;
-  background: transparent;
-  color: var(--color-primary);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.settings-panel__advanced-button:hover {
-  background: rgba(44, 172, 226, 0.1);
-}
 
 /* Mobile-specific styles */
 .settings-panel--mobile .settings-panel__content {
@@ -485,8 +409,7 @@ defineExpose({
 @media (prefers-reduced-motion: reduce) {
   .settings-panel__toggle,
   .settings-panel__checkbox-custom,
-  .settings-panel__close,
-  .settings-panel__advanced-button {
+  .settings-panel__close {
     transition: none;
   }
   
@@ -505,15 +428,11 @@ defineExpose({
     border-width: 2px;
   }
   
-  .settings-panel__select {
-    border-width: 2px;
-  }
 }
 
 /* Focus visible for better keyboard navigation */
 .settings-panel__toggle:focus-visible,
-.settings-panel__close:focus-visible,
-.settings-panel__advanced-button:focus-visible {
+.settings-panel__close:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }

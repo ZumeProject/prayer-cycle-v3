@@ -26,8 +26,7 @@ describe('TimerControls Integration', () => {
     it('integrates correctly with Pinia store status', () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: store.status as PrayerStatus,
-          deviceType: 'mobile'
+          status: store.status as PrayerStatus
         },
         global: {
           plugins: [createPinia()]
@@ -44,8 +43,7 @@ describe('TimerControls Integration', () => {
     it('responds to store status changes', async () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
+          status: 'idle' as PrayerStatus
         }
       })
 
@@ -64,8 +62,7 @@ describe('TimerControls Integration', () => {
     it('emits events that can be handled by store actions', async () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
+          status: 'idle' as PrayerStatus
         }
       })
 
@@ -91,8 +88,7 @@ describe('TimerControls Integration', () => {
     it('handles completed status correctly', async () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'completed' as PrayerStatus,
-          deviceType: 'mobile'
+          status: 'completed' as PrayerStatus
         }
       })
 
@@ -111,39 +107,12 @@ describe('TimerControls Integration', () => {
     })
   })
 
-  describe('Device Type Integration', () => {
-    it('adapts layout for mobile device type', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
-        }
-      })
-
-      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(true)
-      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(false)
-      expect(wrapper.find('.timer-controls__shortcuts').exists()).toBe(false)
-    })
-
-    it('adapts layout for desktop device type', () => {
-      wrapper = mount(TimerControls, {
-        props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
-        }
-      })
-
-      expect(wrapper.find('.timer-controls--desktop').exists()).toBe(true)
-      expect(wrapper.find('.timer-controls--mobile').exists()).toBe(false)
-    })
-  })
 
   describe('Accessibility Integration', () => {
     it('provides proper accessibility attributes', () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'active' as PrayerStatus,
-          deviceType: 'desktop'
+          status: 'active' as PrayerStatus
         }
       })
 
@@ -159,8 +128,7 @@ describe('TimerControls Integration', () => {
     it('does not show keyboard shortcuts since they were removed', () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'desktop'
+          status: 'idle' as PrayerStatus
         }
       })
 
@@ -173,8 +141,7 @@ describe('TimerControls Integration', () => {
     it('shows correct visual states for different prayer statuses', async () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
+          status: 'idle' as PrayerStatus
         }
       })
 
@@ -197,8 +164,7 @@ describe('TimerControls Integration', () => {
     it('shows correct icons for play/pause states', async () => {
       wrapper = mount(TimerControls, {
         props: {
-          status: 'idle' as PrayerStatus,
-          deviceType: 'mobile'
+          status: 'idle' as PrayerStatus
         }
       })
 

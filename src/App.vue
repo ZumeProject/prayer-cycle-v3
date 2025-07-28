@@ -60,7 +60,7 @@ const deviceType = ref<'mobile' | 'desktop'>(detectDeviceType())
 // Menu state management
 const showLanguageSelector = ref(false)
 const showSettings = ref(false)
-const settingsPanel = ref(null)
+const settingsPanel = ref<InstanceType<typeof SettingsPanel> | null>(null)
 
 // Update device type on window resize with debouncing to prevent excessive updates
 let resizeTimeout: ReturnType<typeof setTimeout> | null = null
@@ -75,7 +75,6 @@ function handleResize() {
     const newDeviceType = detectDeviceType()
     if (newDeviceType !== deviceType.value) {
       deviceType.value = newDeviceType
-      store.updateSettings({ deviceType: newDeviceType })
     }
     resizeTimeout = null
   }, 150) // 150ms debounce
@@ -199,7 +198,7 @@ function handleToggleLanguage() {
 function handleToggleSettings() {
   showLanguageSelector.value = false
   // Trigger the settings panel's toggle method
-  if (settingsPanel.value && typeof settingsPanel.value.togglePanel === 'function') {
+  if (settingsPanel.value) {
     settingsPanel.value.togglePanel()
   }
 }
@@ -270,7 +269,6 @@ onMounted(async () => {
   // For now, always use auto-detection to fix the current issue
   // In the future, we can add a user preference toggle
   deviceType.value = currentDetectedType
-  savedSettings.deviceType = currentDetectedType
   
   store.updateSettings(savedSettings)
   
